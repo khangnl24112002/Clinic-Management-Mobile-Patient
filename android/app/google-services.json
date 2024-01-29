@@ -1,0 +1,85 @@
+{
+  "project_info": {
+    "project_number": "698964272341",
+    "firebase_url": "https://clinus-1d1d1-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "clinus-1d1d1",
+    "storage_bucket": "clinus-1d1d1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698964272341:android:be49810ac7e6e40d6cee5c",
+        "android_client_info": {
+          "package_name": "com.khangnl2000.ClinicManagementMobilePatient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698964272341-3vf0iskq641d7b7fta0n7kmp9og5a8uf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.khangnl2000.ClinicManagementMobilePatient",
+            "certificate_hash": "f6a9c9ae728acaa1b55aba60ce55cab6c32c5b40"
+          }
+        },
+        {
+          "client_id": "698964272341-u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAM4n3pKWBa2Z7XZQZq35_MjIcPwXWopk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698964272341-0nvum2ie2u1revvmp8skstgs6kgvpgh2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698964272341:android:68a522a7078c5e996cee5c",
+        "android_client_info": {
+          "package_name": "com.nhatminh287.Mobileapppatient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698964272341-tfdge31kcrl6ltqtksacnahgtseqbg9t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nhatminh287.Mobileapppatient",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "698964272341-u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAM4n3pKWBa2Z7XZQZq35_MjIcPwXWopk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698964272341-0nvum2ie2u1revvmp8skstgs6kgvpgh2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

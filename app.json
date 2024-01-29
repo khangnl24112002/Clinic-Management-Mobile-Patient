@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -21,10 +19,48 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.khangnl2000.ClinicManagementMobilePatient",
+      "permissions": ["android.permission.INTERNET"],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "clinus.page.link",
+              "pathPrefix": "/payment"
+            },
+            {
+              "scheme": "https",
+              "host": "clinus.page.link",
+              "pathPrefix": "/verify-account"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "@react-native-google-signin/google-signin",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "246416061448702",
+          "clientToken": "6b9ac107583746e675bbba995b377e66",
+          "displayName": "CLINUS"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "79fc27d2-e344-45d9-ad7b-8b779820a370"
+      }
     }
   }
 }

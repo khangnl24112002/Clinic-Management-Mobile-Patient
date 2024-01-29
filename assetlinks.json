@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.nhatminh287.Mobileapppatient",
+      "sha256_cert_fingerprints": [
+        "47:0F:5B:A9:0C:8A:13:50:7D:A5:09:8F:B8:E7:DD:9B:C2:A5:6F:C5:0B:8E:2E:7B:D4:4A:6F:15:CD:D0:63:34",
+        "13:83:76:F6:9B:EF:77:91:4A:43:5E:E8:30:32:E5:8C:BE:CA:4B:81:52:4F:A2:54:69:1B:58:3F:69:69:B3:B7",
+        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+      ]
+    }
+  }
+]

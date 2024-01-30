@@ -187,7 +187,7 @@ const Login: React.FC<LoginScreenProps> = ({
         }
       })
       .catch((err) => {
-        console.log();
+        console.log(err);
       });
   }
 

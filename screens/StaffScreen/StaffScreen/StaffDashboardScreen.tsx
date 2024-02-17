@@ -25,10 +25,13 @@ export default function StaffDashboardScreen({
     useState<boolean>(false);
   const getStaffList = async () => {
     try {
-      const response = await clinicService.getClinicMember(clinic?.id);
-      if (response.status && response.data) {
-        setStaffList(response.data);
-      } else {
+      if (clinic?.id) {
+        const response = await clinicService.getStaffClinic(clinic?.id);
+        console.log("response: ", response);
+        if (response.status && response.data) {
+          setStaffList(response.data);
+        } else {
+        }
       }
     } catch (error) {
       console.log(error);
@@ -47,8 +50,7 @@ export default function StaffDashboardScreen({
       alignSelf="center"
       alignItems="center"
       p={5}
-      borderRadius={20}
-      mt="5%"
+      borderBottomRadius={20}
     >
       <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
       {staffList?.length ? (
@@ -59,7 +61,7 @@ export default function StaffDashboardScreen({
             alignItems="center"
             mt={-3}
           >
-            <Text my="2" fontWeight="bold" fontSize={20} alignSelf="flex-start">
+            <Text my="2" fontWeight="bold" fontSize={20}>
               Danh sách nhân viên
             </Text>
             <Pressable
@@ -92,10 +94,10 @@ export default function StaffDashboardScreen({
                         color={appColor.textTitle}
                         fontSize={16}
                       >
-                        {staff.lastName + " " + staff.firstName}
+                        {staff.users.firstName + " " + staff.users.lastName}
                       </Text>
                       <HStack space={2} alignItems="center">
-                        {!staff.isOwner && (
+                        {staff.role.name !== "Admin" && (
                           <>
                             <Pressable
                               onPress={() => {
@@ -123,7 +125,7 @@ export default function StaffDashboardScreen({
                         )}
                       </HStack>
                     </HStack>
-                    {staff.isOwner && (
+                    {staff.role.name === "Admin" && (
                       <Text fontWeight="bold" color="#ca3c0c">
                         Chủ phòng khám
                       </Text>
@@ -139,7 +141,7 @@ export default function StaffDashboardScreen({
                       </VStack>
                       <VStack>
                         <Text color={appColor.textSecondary}>
-                          {staff.email}
+                          {staff.users.email}
                         </Text>
                         <Text color={appColor.textSecondary}>
                           {staff.role.name}

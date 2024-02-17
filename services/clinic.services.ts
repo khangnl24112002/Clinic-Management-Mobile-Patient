@@ -14,8 +14,22 @@ export const clinicService = {
   ): Promise<IApiResponse<IUserInClinicInfo[]>> {
     return axiosClient.get(`/clinics/${clinicId}/users`);
   },
-  async getAllClinic(): Promise<IApiResponse<IClinicInfo[]>> {
-    return axiosClient.get(`/clinics`);
+  async getStaffClinic(clinicId: string): Promise<any> {
+    return axiosClient.get(`/staffs`, {
+      params: {
+        clinicId: clinicId,
+      },
+    });
+  },
+  async getAllClinic(
+    id: any,
+    moduleId: any
+  ): Promise<IApiResponse<IClinicInfo[]>> {
+    if (moduleId === 2) {
+      return axiosClient.get(`/clinics?ownerId=${id}`);
+    } else {
+      return axiosClient.get(`/clinics?suid=${id}`);
+    }
   },
   async updateClinicInfo(
     clinicId: string,
@@ -35,7 +49,7 @@ export const clinicService = {
       },
     });
   },
-  async createClinic(clinicInfo: IClinicCreate) {
+  async createClinic(clinicInfo: IClinicCreate): Promise<IApiResponse<any>> {
     return axiosClient.post("/clinics", clinicInfo);
   },
   async getUserGroupRole(clinicId: any): Promise<IApiResponse<IRole[]>> {

@@ -4,24 +4,28 @@ import { NavigationContainer, useLinkTo } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/AuthenticationScreen/Login/LoginScreen";
 import RegisterScreen from "../screens/AuthenticationScreen/Register/RegisterScreen";
+import ResetPasswordScreen from "../screens/ResetPassword/ResetPasswordScreen";
+import ResetPasswordNotificationScreen from "../screens/ResetPassword/ResetPasswordNotification";
 import { ILoginResponse, IUserInfo } from "../types";
-import { NativeBaseProvider } from "native-base";
+import { NativeBaseProvider, useToast } from "native-base";
 import { theme } from "../theme";
 import UserNavigator from "./UserNavigator";
 import ValidateNotification from "../screens/AuthenticationScreen/ValidateNotification/ValidateNotification";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { restoreUserInfo } from "../store";
+import { logout, restoreUserInfo } from "../store";
 import SplashScreen from "../screens/AuthenticationScreen/SplashScreen/SplashScreen";
 import { ReactNavigationTheme } from "../config/react-navigation.theme";
 import DoctorNavigator from "./DoctorNavigator";
 import { useAppDispatch } from "../hooks";
 import messaging from "@react-native-firebase/messaging";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { firebase, FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { firebase } from "@react-native-firebase/auth";
 import { firebaseConfig } from "../config/firebase";
-import { FCMConfig } from "../config/firebaseCloudMessage";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
 import { NavigationContainerRef } from "@react-navigation/native";
+import { jwtDecode } from "jwt-decode";
+import "core-js/stable/atob";
+import ToastAlert from "../components/Toast/Toast";
 
 // Create an object type with mappings for route name to the params of the route
 export type RootNativeStackParamList = {
@@ -33,6 +37,15 @@ export type RootNativeStackParamList = {
     setLogin: (user: IUserInfo | null, token: string | null) => void;
   };
 
+  ResetPassword: {
+    setLogin: (user: IUserInfo | null, token: string | null) => void | any;
+  };
+
+  ResetPasswordNotification: {
+    setLogin: (user: IUserInfo | null, token: string | null) => void | any;
+    email: string;
+  };
+
   UserNavigator: {
     screen: string;
     params: { setLogout: () => void };
@@ -41,6 +54,7 @@ export type RootNativeStackParamList = {
   DoctorNavigator: { setLogout: () => void };
   ValidateNotification: {
     setLogin: (user: IUserInfo | null, token: string | null) => void;
+    email: string;
   };
 };
 
@@ -72,7 +86,18 @@ export type ValidateNotificationProps = NativeStackScreenProps<
   "ValidateNotification"
 >;
 
+export type ResetPasswordScreenProps = NativeStackScreenProps<
+  RootNativeStackParamList,
+  "ResetPassword"
+>;
+
+export type ResetPasswordNotificationScreenProps = NativeStackScreenProps<
+  RootNativeStackParamList,
+  "ResetPasswordNotification"
+>;
+
 const StackNavigator = () => {
+  const toast = useToast();
   // define userToken for validation
   const [token, setToken] = React.useState<string | null>(null);
   const [user, setUser] = React.useState<IUserInfo | null>(null);
@@ -85,12 +110,7 @@ const StackNavigator = () => {
 
   // Ignore unessessary notifications
   React.useEffect(() => {
-    LogBox.ignoreLogs([
-      "In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.",
-    ]);
-    LogBox.ignoreLogs([
-      "Non-serializable values were found in the navigation state",
-    ]);
+    LogBox.ignoreAllLogs(); //Ignore all log notifications
   }, []);
 
   // Define two function to handle login and logout
@@ -118,12 +138,22 @@ const StackNavigator = () => {
       // await AsyncStorage.setItem("user", JSON.stringify(userToStorage));
       // await AsyncStorage.setItem("token", token);
 
-      // await AsyncStorage.removeItem("user");
-      // await AsyncStorage.removeItem("token");
       // Restore userInfo and dispatch to the store
       const testData = await AsyncStorage.getItem("user");
       const tokenString = await AsyncStorage.getItem("token");
       if (tokenString && testData) {
+        // Check token expired
+        const decodeToken = jwtDecode(tokenString);
+        const exp = decodeToken.exp ? decodeToken.exp * 1000 : 0;
+        const expDate = new Date(exp);
+        const currentDate = new Date();
+        if (expDate < currentDate) {
+          // Token is expired
+          await AsyncStorage.removeItem("user");
+          await AsyncStorage.removeItem("token");
+          logout();
+          setLogout();
+        }
         const testDataObject = JSON.parse(testData);
         setLogin(testDataObject, tokenString);
         const UserResponseObject: ILoginResponse = {
@@ -132,10 +162,23 @@ const StackNavigator = () => {
         };
         dispatch(restoreUserInfo(UserResponseObject));
       } else {
+        console.log("Loi o navigator dong 168!");
         setLogout();
       }
     } catch (e) {
       // Restoring token failed
+      console.log(e);
+      toast.show({
+        render: () => {
+          return (
+            <ToastAlert
+              title="Lỗi"
+              description="Phiên hoạt động của bạn đã hết. Vui lòng đăng xuất ra khỏi ứng dụng và đăng nhập lại."
+              status="error"
+            />
+          );
+        },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -157,15 +200,15 @@ const StackNavigator = () => {
     // We haven't finished checking for the token yet
     return <SplashScreen />;
   }
-  console.log("USER", user);
-  console.log("TOKEN", token);
+  // console.log("USER", user);
+  // console.log("TOKEN", token);
 
   const HandleDeepLinking = () => {
     const handleLink = async (link: any) => {
       console.log("Handle deep link");
       console.log("Link: ", link);
       // assume the data in url is the object like this
-      if (link.url === "https://clinus.page.link/payment") {
+      if (link.url === "https://clinus.netlify.app/clinic/quan-ly-goi") {
         const navigation = navigationRef.current;
         if (navigation) {
           // Sửa ở đây
@@ -173,6 +216,13 @@ const StackNavigator = () => {
             screen: "ClinicListNavigator",
             params: { setLogout },
           });
+        }
+      }
+      if (link.url === "https://clinus.page.link/verify-account") {
+        const navigation = navigationRef.current;
+        if (navigation) {
+          // Sửa ở đây
+          navigation.navigate("Login", { setLogin });
         }
       }
     };
@@ -184,7 +234,7 @@ const StackNavigator = () => {
       dynamicLinks()
         .getInitialLink()
         .then((link: any) => {
-          console.log("Initial link: ", link);
+          // console.log("Initial link: ", link);
         });
     }, []);
     return null;
@@ -218,49 +268,37 @@ const StackNavigator = () => {
                 initialParams={{ setLogin: setLogin }}
               />
               <RootStack.Screen
+                name="ResetPassword"
+                component={ResetPasswordScreen}
+                options={{ headerShown: false }}
+                initialParams={{ setLogin: setLogin }}
+              />
+              <RootStack.Screen
+                name="ResetPasswordNotification"
+                component={ResetPasswordNotificationScreen}
+                options={{ headerShown: false }}
+                initialParams={{ setLogin: setLogin }}
+              />
+              <RootStack.Screen
                 name="ValidateNotification"
                 component={ValidateNotification}
                 options={{ headerShown: false }}
                 initialParams={{ setLogin: setLogin }}
               />
             </>
-          ) : user?.moduleId === 2 ? (
+          ) : (
             <>
               <RootStack.Screen
                 name="UserNavigator"
                 component={UserNavigator}
                 options={{ headerShown: false }}
                 initialParams={{
-                  screen: "",
+                  screen: "ClinicListNavigator",
                   params: { setLogout },
                 }}
               />
             </>
-          ) : user?.moduleId === 2 ? (
-            <>
-              <RootStack.Screen
-                name="UserNavigator"
-                component={UserNavigator}
-                options={{ headerShown: false }}
-                initialParams={{
-                  screen: "",
-                  params: { setLogout },
-                }}
-              />
-            </>
-          ) : user?.moduleId === 4 ? (
-            <>
-              <RootStack.Screen
-                name="UserNavigator"
-                component={UserNavigator}
-                options={{ headerShown: false }}
-                initialParams={{
-                  screen: "",
-                  params: { setLogout },
-                }}
-              />
-            </>
-          ) : null}
+          )}
         </RootStack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>

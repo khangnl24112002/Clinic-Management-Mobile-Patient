@@ -9,6 +9,10 @@ import {
   ILoginWithGoogleResponse,
   ILoginResponseData,
   ILinkAccountRequest,
+  IResetPasswordResponse,
+  IUserInfoUpdateRequest,
+  IChangePasswordRequest,
+  IAddNewPasswordRequest
 } from "../types";
 import { IInviteClinicMemberRequest } from "../types/clinic.types";
 
@@ -66,4 +70,26 @@ export const authApi = {
   inviteMemberToClinic(userInfo: IInviteClinicMemberRequest): Promise<any> {
     return axiosClient.post(`/auth/invite`, userInfo);
   },
+
+  resetPassword(email: string): Promise<IResetPasswordResponse> {
+    return axiosClient.post('/auth/reset-password', { email });
+  },
+
+  resendVerifyEmail(email: string): Promise<IApiResponse<any>> {
+    return axiosClient.post(`/auth/resend-verify-email`, {
+      email: email,
+    });
+  },
+
+  updateUserInfo(data : IUserInfoUpdateRequest, userId: string): Promise<any> {
+    return axiosClient.put(`/auth/user/${userId}`, data);
+  },
+
+  changePassword(data: IChangePasswordRequest, userId: string): Promise<any> {
+    return axiosClient.post(`/auth/${userId}/change-password`, data);
+  },
+
+  addNewPassword(data: IAddNewPasswordRequest): Promise<any> {
+    return axiosClient.put('/auth/add-new-password', data);
+  }
 };

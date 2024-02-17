@@ -45,7 +45,7 @@ import { appColor } from "../../../theme";
 import ToastAlert from "../../../components/Toast/Toast";
 GoogleSignin.configure({
   webClientId:
-    "698964272341-u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
+    "698964272341 - u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
 });
 let providerStr: string = "";
 
@@ -57,8 +57,8 @@ const schema: yup.ObjectSchema<ILoginRequest> = yup
       .email("Email không hợp lệ"),
     password: yup
       .string()
-      .min(8, "Mật khẩu phải có ít nhất 8 kí tự")
-      .required("password required"),
+      .required("password required")
+      .min(8, "Mật khẩu phải có ít nhất 8 kí tự"),
   })
   .required();
 
@@ -78,6 +78,7 @@ const Login: React.FC<LoginScreenProps> = ({
     useState<boolean>(false);
   const [emailChoose, setEmailChoose] = useState<string>(""); // email được chọn để đăng ký tài khoản
   const [additionalPassword, setAdditionalPassword] = useState<string>("");
+  const [errorPassword, setErrorPassword] = useState<string>("");
   const [
     showEnterAdditionalPasswordModal,
     setShowEnterAdditionalPasswordModal,
@@ -136,9 +137,7 @@ const Login: React.FC<LoginScreenProps> = ({
     const userSignIn = auth().signInWithCredential(googleCredential);
     userSignIn
       .then(async (userInfoFromProvider) => {
-        console.log(userInfoFromProvider);
         if (userInfoFromProvider) {
-          console.log(userInfoFromProvider);
           setUserIdFromProvider(userInfoFromProvider.user.uid);
           setProviderLogin(providerStr);
           // kiểm tra account có tồn tại, nếu có thì lưu thông tin user và token
@@ -155,13 +154,40 @@ const Login: React.FC<LoginScreenProps> = ({
               isInputPassword: res.data.user.isInputPassword,
               firstName: res.data.user.firstName,
               lastName: res.data.user.lastName,
+              gender: res.data.user.gender ? res.data.user.gender : undefined,
+              birthday: res.data.user.birthday
+                ? res.data.user.birthday
+                : undefined,
+              phone: res.data.user.phone ? res.data.user.phone : undefined,
+              address: res.data.user.address
+                ? res.data.user.address
+                : undefined,
               moduleId: res.data.user.moduleId,
+              avatar: res.data.user.avatar ? res.data.user.avatar : undefined,
             };
             // If isInputPassword = false: require user enter the password
             if (userToStorage.isInputPassword === false) {
               setEmailFromResponse(userToStorage.email);
               setShowEnterAdditionalPasswordModal(true);
             } else {
+              // Kiểm tra ModuleId: Nếu moduleId = 2 hoặc = 5 thì mới cho vào
+              if (
+                res.data.user.moduleId !== 2 ||
+                res.data.user.moduleId !== 5
+              ) {
+                toast.show({
+                  render: () => {
+                    return (
+                      <ToastAlert
+                        title="Thất bại!"
+                        description="Đăng nhập thất bại! Vai trò của bạn không đúng!"
+                        status="error"
+                      />
+                    );
+                  },
+                });
+                return;
+              }
               // Tạo object userToReduxStore để lưu dữ liệu User vào redux, interface là ILoginResponse
               const userToReduxStore: ILoginResponse = {
                 user: userToStorage,
@@ -174,6 +200,17 @@ const Login: React.FC<LoginScreenProps> = ({
               dispatch(login(userToReduxStore));
               // setToken để render lại màn hình
               setLogin(res.data.user, res.data.token);
+              toast.show({
+                render: () => {
+                  return (
+                    <ToastAlert
+                      title="Thành công"
+                      description="Đăng nhập thành công!"
+                      status="success"
+                    />
+                  );
+                },
+              });
             }
           } else {
             const providedEmail =
@@ -187,7 +224,7 @@ const Login: React.FC<LoginScreenProps> = ({
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.log();
       });
   }
 
@@ -207,7 +244,6 @@ const Login: React.FC<LoginScreenProps> = ({
     const userSignIn = signInWithCredential(auth, facebookCredentials);
     userSignIn
       .then(async (userInfoFromProvider) => {
-        console.log(userInfoFromProvider);
         setUserIdFromProvider(userInfoFromProvider.user.uid);
         setProviderLogin(providerStr);
         // kiểm tra account có tồn tại, nếu có thì lưu thông tin user và token
@@ -224,7 +260,12 @@ const Login: React.FC<LoginScreenProps> = ({
             isInputPassword: res.data.user.isInputPassword,
             firstName: res.data.user.firstName,
             lastName: res.data.user.lastName,
+            gender: res.data.user.gender,
+            birthday: res.data.user.birthday,
+            phone: res.data.user.phone,
+            address: res.data.user.address,
             moduleId: res.data.user.moduleId,
+            avatar: res.data.user.avatar,
             // dữ liệu tạm thời
             // Check isInputPassword: lấy từ API về
             // nếu là False: Hiện modal Nhập mật khẩu
@@ -236,6 +277,21 @@ const Login: React.FC<LoginScreenProps> = ({
             setEmailFromResponse(userToStorage.email);
             setShowEnterAdditionalPasswordModal(true);
           } else {
+            // Kiểm tra ModuleId: Nếu moduleId = 2 hoặc = 5 thì mới cho vào
+            if (res.data.user.moduleId !== 2 || res.data.user.moduleId !== 5) {
+              toast.show({
+                render: () => {
+                  return (
+                    <ToastAlert
+                      title="Thất bại!"
+                      description="Đăng nhập thất bại! Vai trò của bạn không đúng!"
+                      status="error"
+                    />
+                  );
+                },
+              });
+              return;
+            }
             // Tạo object userToReduxStore để lưu dữ liệu User vào redux, interface là ILoginResponse
             const userToReduxStore: ILoginResponse = {
               user: userToStorage,
@@ -248,6 +304,17 @@ const Login: React.FC<LoginScreenProps> = ({
             dispatch(login(userToReduxStore));
             // setToken để render lại màn hình
             setLogin(res.data.user, res.data.token);
+            toast.show({
+              render: () => {
+                return (
+                  <ToastAlert
+                    title="Thành công"
+                    description="Đăng nhập thành công!"
+                    status="success"
+                  />
+                );
+              },
+            });
           }
         } else {
           setEmailFromProvider(userInfoFromProvider.user.email);
@@ -271,30 +338,58 @@ const Login: React.FC<LoginScreenProps> = ({
       if (res.status) {
         navigation.navigate("ValidateNotification", {
           setLogin: setLogin,
+          email: email,
         });
         setShowEnterEmailModal(false);
       }
       setEmailChoose("");
-      navigation.navigate("ValidateNotification", { setLogin });
+      navigation.navigate("ValidateNotification", { setLogin, email: email });
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleAddingAdditionalPassword = async () => {
+    setIsLoading(true);
     if (additionalPassword === "") {
-      console.log("mat khau trong");
+      setErrorPassword("Mật khẩu trống!");
+    } else if (additionalPassword.length < 8) {
+      setErrorPassword("Mật khẩu tối thiểu 8 kí tự!");
     } else {
-      console.log(emailFromResponse, additionalPassword);
-      const response = await authApi.addingAdditionalPassword(
-        emailFromResponse,
-        additionalPassword
-      );
-      if (response.status) {
-        console.log("Thay doi mat khau thanh cong");
-        setShowEnterAdditionalPasswordModal(false);
+      try {
+        const response = await authApi.addingAdditionalPassword(
+          emailFromResponse,
+          additionalPassword
+        );
+        if (response.status) {
+          toast.show({
+            render: () => {
+              return (
+                <ToastAlert
+                  title="Thành công"
+                  description="Cập nhật mật khẩu thành công!"
+                  status="success"
+                />
+              );
+            },
+          });
+          setShowEnterAdditionalPasswordModal(false);
+        }
+      } catch (err: any) {
+        toast.show({
+          render: () => {
+            return (
+              <ToastAlert
+                title="Thất bại"
+                description={err.response.data.message}
+                status="error"
+              />
+            );
+          },
+        });
       }
     }
+    setIsLoading(false);
   };
 
   /**
@@ -310,39 +405,59 @@ const Login: React.FC<LoginScreenProps> = ({
       .login(data)
       .then(async (res) => {
         if (res.status && res.data) {
-          // Dispatch data to reducer
-          dispatch(login(res.data));
-          // save data in async storage
-          await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
-          await AsyncStorage.setItem("token", res.data.token);
-          // Set lại token để vào trang homepage
-          setLogin(res.data.user, res.data.token);
+          if (res.data.user.moduleId == 2 || res.data.user.moduleId == 5) {
+            // Dispatch data to reducer
+            dispatch(login(res.data));
+            // save data in async storage
+            await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+            await AsyncStorage.setItem("token", res.data.token);
+            // Set lại token để vào trang homepage
+            setLogin(res.data.user, res.data.token);
+            toast.show({
+              render: () => {
+                return (
+                  <ToastAlert
+                    title="Thành công"
+                    description="Đăng nhập thành công!"
+                    status="success"
+                  />
+                );
+              },
+            });
+          } else {
+            toast.show({
+              render: () => {
+                return (
+                  <ToastAlert
+                    title="Thất bại!"
+                    description="Đăng nhập thất bại! Vai trò của bạn không đúng!"
+                    status="error"
+                  />
+                );
+              },
+            });
+          }
+        }
+      })
+      .catch((error) => {
+        if (error.response.data.message === "Email chưa được xác thực") {
+          navigation.navigate("ValidateNotification", {
+            setLogin,
+            email: data.email,
+          });
+        } else {
           toast.show({
             render: () => {
               return (
                 <ToastAlert
-                  title="Thành công"
-                  description="Đăng nhập thành công!"
-                  status="success"
+                  title="Thất bại!"
+                  description={error.response.data.message}
+                  status="error"
                 />
               );
             },
           });
         }
-      })
-      .catch((error) => {
-        toast.show({
-          render: () => {
-            return (
-              <ToastAlert
-                title="Thất bại!"
-                description="Đăng nhập thất bại! Vui lòng kiểm tra lại."
-                status="error"
-              />
-            );
-          },
-        });
-        console.log(error);
       });
     setIsLoading(false);
   };
@@ -515,6 +630,9 @@ const Login: React.FC<LoginScreenProps> = ({
                     color: "primary.300",
                   }}
                   alignSelf="center"
+                  onPress={() =>
+                    navigation.navigate("ResetPassword", { setLogin })
+                  }
                 >
                   Quên mật khẩu?
                 </Link>
@@ -611,14 +729,14 @@ const Login: React.FC<LoginScreenProps> = ({
           isOpen={showEnterEmailModal}
           onClose={() => setShowEnterEmailModal(false)}
         >
-          <Modal.Content maxWidth="400px">
+          <Modal.Content borderRadius={20} maxWidth="400px">
             <Modal.Header>
               Tài khoản của bạn chưa được liên kết, vui lòng chọn email muốn
               liên kết
             </Modal.Header>
             <Modal.Body>
               <FormControl>
-                <FormControl.Label>
+                <FormControl.Label _text={{ color: appColor.inputLabel }}>
                   Chọn Email để liên kết tài khoản
                 </FormControl.Label>
                 <Button
@@ -634,7 +752,9 @@ const Login: React.FC<LoginScreenProps> = ({
                 </Button>
               </FormControl>
               <FormControl mt="3">
-                <FormControl.Label>Hoặc nhập Email của bạn</FormControl.Label>
+                <FormControl.Label _text={{ color: appColor.inputLabel }}>
+                  Hoặc nhập Email của bạn
+                </FormControl.Label>
                 <Input
                   placeholder="Nhập tài khoản bạn muốn liên kết"
                   value={emailChoose}
@@ -647,8 +767,15 @@ const Login: React.FC<LoginScreenProps> = ({
             <Modal.Footer>
               <Button.Group space={2}>
                 <Button
-                  variant="ghost"
-                  colorScheme="blueGray"
+                  backgroundColor={appColor.white}
+                  borderWidth={1}
+                  borderColor="secondary.300"
+                  _pressed={{
+                    backgroundColor: "secondary.100",
+                  }}
+                  _text={{
+                    color: "secondary.300",
+                  }}
                   onPress={() => {
                     setShowEnterEmailModal(false);
                   }}
@@ -672,26 +799,39 @@ const Login: React.FC<LoginScreenProps> = ({
           isOpen={showEnterAdditionalPasswordModal}
           onClose={() => setShowEnterAdditionalPasswordModal(false)}
         >
-          <Modal.Content maxWidth="400px">
+          <Modal.Content borderRadius={20} maxWidth="400px">
             <Modal.Header>
               Tài khoản mà bạn liên kết chưa có mật khẩu, vui lòng nhập mật khẩu
               bổ sung:
             </Modal.Header>
             <Modal.Body>
-              <FormControl mt="3">
-                <FormControl.Label>Nhập mật khẩu mới: </FormControl.Label>
+              <FormControl>
+                <FormControl.Label _text={{ color: appColor.inputLabel }}>
+                  Nhập mật khẩu mới:{" "}
+                </FormControl.Label>
                 <Input
+                  type="password"
                   placeholder="Nhập mật khẩu"
                   value={additionalPassword}
                   onChangeText={(password) => {
                     setAdditionalPassword(password);
                   }}
                 />
+                <Text color="error.400">{errorPassword}</Text>
               </FormControl>
             </Modal.Body>
             <Modal.Footer>
               <Button.Group space={2}>
                 <Button
+                  backgroundColor={appColor.white}
+                  borderWidth={1}
+                  borderColor="secondary.300"
+                  _pressed={{
+                    backgroundColor: "secondary.100",
+                  }}
+                  _text={{
+                    color: "secondary.300",
+                  }}
                   onPress={() => {
                     setShowEnterAdditionalPasswordModal(false);
                   }}

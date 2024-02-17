@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">Clinic-Management-Mobile-Patient</string>
+  <string name="app_name">Clinus Patient</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
   <string name="facebook_app_id">246416061448702</string>

@@ -45,7 +45,7 @@ import { appColor } from "../../../theme";
 import ToastAlert from "../../../components/Toast/Toast";
 GoogleSignin.configure({
   webClientId:
-    "698964272341 - u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
+    "698964272341-0nvum2ie2u1revvmp8skstgs6kgvpgh2.apps.googleusercontent.com",
 });
 let providerStr: string = "";
 

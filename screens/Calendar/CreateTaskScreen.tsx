@@ -2,29 +2,34 @@ import React, { Fragment, useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
-  Image,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useToast } from 'native-base'
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import ToastAlert from "../../components/Toast/Toast";
+import { AntDesign } from '@expo/vector-icons';
+import { Image } from 'native-base'
 import { CreateTaskNavigatorProps } from "../../Navigator/UserNavigator";
 import { CalendarList } from "react-native-calendars";
 import moment from "moment";
-
-import DateTimePicker from "react-native-modal-datetime-picker";
+import { IClinicStaff, IPatient, IClinicService, INewAppointmentPayload } from '../../types'
 import { v4 as uuidv4 } from "uuid";
 import SelectDropdown from "react-native-select-dropdown";
-//import { useKeyboardHeight } from '@calendar/hooks';
-import useStore from "../../store/ClendarStore";
+import { useAppSelector } from "../../hooks";
+import { ClinicSelector } from "../../store";
 import AddPatientInfo from "./AddPatientInfo";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { staffApi, patientApi, clinicServiceApi, appointmentApi } from "../../services";
 const { width: vw } = Dimensions.get("window");
 moment().format("YYYY/MM/DD");
+const chevronDown = require("../../assets/chevron_down.png");
+import { APPOINTMENT_STATUS, Gender } from '../../enums';
+
 
 export default function CreateTask({
   navigation,
@@ -33,6 +38,7 @@ export default function CreateTask({
   const [visibleHeight, setVisibleHeight] = useState(
     Dimensions.get("window").height
   );
+  const clinic = useAppSelector(ClinicSelector);
   const [currentDay, setCurrentDay] = useState(moment().format());
   const [selectedDay, setSelectedDay] = useState({
     [`${moment().format("YYYY")}-${moment().format("MM")}-${moment().format(
@@ -43,9 +49,120 @@ export default function CreateTask({
     },
   });
   const [doctorName, setDoctorName] = useState("");
+  const [doctorSelected, setDoctorSelected] = useState<IClinicStaff>();
+  const [patientSelected, setPatientSelected] = useState<IPatient>();
+  const [serviceSelected, setServiceSelected] = useState<IClinicService>();
   const [notesText, setNotesText] = useState("");
   const [isAddPatientInfo, setIsAddPatientInfo] = useState<boolean>(false);
+  const [doctorList, setDoctorList] = useState<IClinicStaff[]>([]);
+  const [patientList, setPatientList] = useState<IPatient[]>([]);
+  const [clinicServiceList, setClinicServiceList] = useState<IClinicService[]>([]);
+  const [startTime, setStartTime] = useState<string>("09:00")
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const toast = useToast();
+
+  const getDoctorList = async () => {
+    try {
+      if (clinic?.id)
+      {
+        const response = await staffApi.getStaffs({ clinicId: clinic?.id });
+        console.log('response: ', response);
+        if (response.status && response.data) {
+          setDoctorList(response.data)
+        } else {
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getDoctorList();
+  }, [clinic?.id]);
+
+  const getPatientList = async () => {
+    try {
+      if (clinic?.id)
+      {
+        const response = await patientApi.getPatients({ clinicId: clinic?.id });
+        console.log('response: ', response);
+        if (response.status && response.data) {
+          setPatientList(response.data)
+        } else {
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const getClinicServiceList = async () => {
+    try {
+      if (clinic?.id)
+      {
+        const response = await clinicServiceApi.getClinicServices(clinic!.id);
+        //console.log('response: ', response);
+        if (response.status && response.data) {
+          setClinicServiceList(response.data)
+        } else {
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getDoctorList();
+    getPatientList();
+    getClinicServiceList();
+  }, [clinic?.id]);
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const payload: INewAppointmentPayload = {
+      clinicId: clinic!.id,
+      doctorId: doctorSelected!.id,
+      patientId: patientSelected!.id,
+      serviceId: serviceSelected!.id,
+      date: currentDay,
+      startTime: startTime? startTime : "",
+      endTime: startTime? startTime : "",
+      description: notesText,
+      status: APPOINTMENT_STATUS.CONFIRM
+    }
+
+    console.log('payload', payload);
+    const res = await appointmentApi.createAppointment(payload);
+
+    if (res.status) {
+      toast.show({
+        render: () => {
+            return (
+            <ToastAlert
+                title="Thành công"
+                description="Thêm lịch hẹn thành công!"
+                status="success"
+            />
+            );
+        },
+        });
+        navigation.navigate("CalendarNavigator")
+    }
+    else {
+      toast.show({
+        render: () => {
+        return (
+            <ToastAlert
+            title="Lỗi"
+            description="Thêm lịch hẹn thất bại. Vui lòng kiểm tra lại thông tin."
+            status="error"
+            />
+        );
+        },
+    });
+    }
+    setIsLoading(false)
+  }
   const renderAddTask = () => {
     return (
       <>
@@ -81,7 +198,7 @@ export default function CreateTask({
                   selectedColor: "#2E66E7",
                 },
               });
-              setCurrentDay(day.dateString);
+              setCurrentDay(day.dateString.slice(0,10));
             }}
             monthFormat="yyyy MMMM"
             hideArrows
@@ -108,13 +225,84 @@ export default function CreateTask({
             }}
             value={currentDay.substring(0, 10).split("-").reverse().join("-")}
           />
-          <TextInput
-            style={styles.title}
-            onChangeText={setDoctorName}
-            value={doctorName}
-            placeholder="Chọn bác sĩ"
+          <SelectDropdown
+            data={doctorList.map((doctor) => (doctor.users? doctor.users.firstName + ' ' + doctor.users.lastName : null))}
+            onSelect={(selectedItem, index) => {
+              setDoctorName(selectedItem)
+              setDoctorSelected(doctorList[index])
+            }}
+            defaultButtonText={"Chọn bác sĩ"}
+            buttonTextAfterSelection={(selectedItem, index) => {
+              return selectedItem;
+            }}
+            rowTextForSelection={(item, index) => {
+              return item;
+            }}
+            buttonStyle={styles.dropdown1BtnStyle}
+            buttonTextStyle={styles.dropdown1BtnTxtStyle}
+            renderDropdownIcon={() => (
+              <Image alt="icon" source={chevronDown} size={18} />
+            )}
+            dropdownIconPosition={"right"}
+            dropdownStyle={styles.dropdown1DropdownStyle}
+            rowStyle={styles.dropdown1RowStyle}
+            rowTextStyle={styles.dropdown1RowTxtStyle}
           />
 
+          <View style={styles.notesContent} />
+          <TouchableOpacity
+            style={{position: "absolute", top: 155, right: 20}}
+            onPress={() => setIsAddPatientInfo(true)}
+            >
+            <AntDesign name="adduser" size={24} color="black" />
+          </TouchableOpacity>
+          <View style={{marginTop: 15}}>
+            <SelectDropdown
+              data={patientList.map((patient) => (patient? patient.firstName + ' ' + patient.lastName : null))}
+              onSelect={(selectedItem, index) => {
+                setPatientSelected(patientList[index])
+              }}
+              defaultButtonText={"Chọn bệnh nhân"}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item, index) => {
+                return item;
+              }}
+              buttonStyle={styles.dropdown1BtnStyle}
+              buttonTextStyle={styles.dropdown1BtnTxtStyle}
+              renderDropdownIcon={() => (
+                <Image alt="icon" source={chevronDown} size={18} />
+              )}
+              dropdownIconPosition={"right"}
+              dropdownStyle={styles.dropdown1DropdownStyle}
+              rowStyle={styles.dropdown1RowStyle}
+              rowTextStyle={styles.dropdown1RowTxtStyle}
+            />
+          </View>
+          <View style={styles.notesContent2} />
+          <SelectDropdown
+              data={clinicServiceList.map((service) => (service.serviceName))}
+              onSelect={(selectedItem, index) => {
+                setServiceSelected(clinicServiceList[index])
+              }}
+              defaultButtonText={"Chọn dịch vụ khám bệnh"}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item, index) => {
+                return item;
+              }}
+              buttonStyle={styles.dropdown1BtnStyle}
+              buttonTextStyle={styles.dropdown1BtnTxtStyle}
+              renderDropdownIcon={() => (
+                <Image alt="icon" source={chevronDown} size={18} />
+              )}
+              dropdownIconPosition={"right"}
+              dropdownStyle={styles.dropdown1DropdownStyle}
+              rowStyle={styles.dropdown1RowStyle}
+              rowTextStyle={styles.dropdown1RowTxtStyle}
+            />
           <View style={styles.notesContent} />
           <View>
             <Text style={styles.notes}>Ghi chú</Text>
@@ -143,22 +331,23 @@ export default function CreateTask({
 
             <SelectDropdown
               data={[
-                "09:00 AM",
-                "09:30 AM",
-                "10:00 AM",
-                "10:30 AM",
-                "11:00 AM",
-                "11:30 AM",
-                "12:00 PM",
-                "12:30 PM",
-                "01:00 PM",
-                "01:30 PM",
-                "02:00 PM",
-                "02:30 PM",
-                "03:00 PM",
+                "09:00",
+                "09:30",
+                "10:00",
+                "10:30",
+                "11:00",
+                "11:30",
+                "12:00",
+                "12:30",
+                "13:00",
+                "13:30",
+                "14:00",
+                "14:30",
+                "15:00",
               ]}
               onSelect={(selectedItem, index) => {
-                console.log(selectedItem, index);
+                //console.log(selectedItem, index);
+                setStartTime(selectedItem)
               }}
               buttonTextAfterSelection={(selectedItem, index) => {
                 // text represented after item is selected
@@ -170,7 +359,7 @@ export default function CreateTask({
                 // if data array is an array of objects then return item.property to represent item in dropdown
                 return item;
               }}
-              defaultButtonText={"09:00 AM"}
+              defaultButtonText={"09:00"}
             />
           </View>
 
@@ -197,7 +386,7 @@ export default function CreateTask({
                   backgroundColor:
                     doctorName === "" ? "rgba(46, 102, 231,0.5)" : "#2E66E7",
                 }}
-                onPress={() => setIsAddPatientInfo(true)}
+                onPress={handleSubmit}
               >
                 <Text
                   style={{
@@ -206,7 +395,7 @@ export default function CreateTask({
                     color: "#fff",
                   }}
                 >
-                  Tiếp tục
+                  Xác nhận
                 </Text>
               </TouchableOpacity>
             </View>
@@ -225,6 +414,7 @@ export default function CreateTask({
             paddingBottom: 40,
           }}
         >
+          <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 100,
@@ -270,6 +460,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 20,
   },
+  notesContent2: {
+    height: 0.5,
+    width: "100%",
+    backgroundColor: "#ebebeb",
+    alignSelf: "center",
+    marginVertical: 20,
+  },
   learn: {
     height: 23,
     width: 51,
@@ -301,7 +498,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   taskContainer: {
-    height: 400,
+    height: 620,
     width: 327,
     alignSelf: "center",
     borderRadius: 20,
@@ -317,7 +514,7 @@ const styles = StyleSheet.create({
     padding: 22,
   },
   calenderContainer: {
-    marginTop: 30,
+    marginTop: 0,
     width: 350,
     height: 350,
     alignSelf: "center",
@@ -331,7 +528,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flexDirection: "row",
-    marginTop: 20,
+    marginTop: 5,
     width: "100%",
     alignItems: "center",
   },
@@ -339,4 +536,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#eaeef7",
   },
+  dropdown1BtnStyle: {
+    width: "100%",
+    height: 46,
+    backgroundColor: "#F5F5FC",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#D4D4D5",
+  },
+  dropdown1BtnTxtStyle: { color: "black", textAlign: "left", fontSize: 13 },
+  dropdown1DropdownStyle: { backgroundColor: "#EFEFEF", marginTop: -70, borderRadius: 15 },
+  dropdown1RowStyle: {
+    backgroundColor: "#EFEFEF",
+    borderBottomColor: "#C5C5C5",
+  },
+  dropdown1RowTxtStyle: { color: "#444", textAlign: "left" },
 });

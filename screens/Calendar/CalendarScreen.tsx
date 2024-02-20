@@ -12,79 +12,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useToast } from 'native-base'
+import { useAppSelector } from "../../hooks";
+import { ClinicSelector } from "../../store";
 import SelectDropdown from "react-native-select-dropdown";
 import { CalendarNavigatorProps } from "../../Navigator/UserNavigator";
 import Timeline from "react-native-timeline-flatlist";
 import moment from "moment";
-
-import { IAppointment } from "../../types";
+import { CalendarList } from "react-native-calendars";
+import { IAppointment, IUpdateAppointmentPayload } from "../../types";
 import { APPOINTMENT_STATUS } from "../../enums";
-
-import CalendarStrip from "react-native-calendar-strip";
+import { appointmentApi } from '../../services'
+import ToastAlert from "../../components/Toast/Toast";
 import Task from "./Task";
-
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const leftArrowIcon = require("../../assets/left-arrow.png");
 const rightArrowIcon = require("../../assets/right-arrow.png");
 
-const appointments: Array<IAppointment> = [
-  {
-    id: "1",
-    doctorId: "1",
-    doctorName: "Doctor 1",
-    patientId: "1",
-    patientName: "Patient 1",
-    startTime: new Date("2024-01-21T13:45:00+07:00"),
-    endTime: new Date("2024-01-21T14:00:00+07:00"),
-    note: "Note 1",
-    status: APPOINTMENT_STATUS.BOOK,
-  },
-  {
-    id: "2",
-    doctorId: "2",
-    doctorName: "Doctor 2",
-    patientId: "2",
-    patientName: "Patient 2",
-    startTime: new Date("2024-01-28T15:45:00+07:00"),
-    endTime: new Date("2024-01-28T16:00:00+07:00"),
-    note: "Note 2",
-    status: APPOINTMENT_STATUS.CANCEL,
-  },
-  {
-    id: "3",
-    doctorId: "3",
-    doctorName: "Doctor 3",
-    patientId: "3",
-    patientName: "Patient 3",
-    startTime: new Date("2024-01-28T15:45:00+07:00"),
-    endTime: new Date("2024-01-28T16:15:00+07:00"),
-    note: "Note 3",
-    status: APPOINTMENT_STATUS.CHECK_IN,
-  },
-  {
-    id: "4",
-    doctorId: "4",
-    doctorName: "Doctor 4",
-    patientId: "4",
-    patientName: "Patient 4",
-    startTime: new Date("2024-01-28T16:45:00+07:00"),
-    endTime: new Date("2024-01-28T17:00:00+07:00"),
-    note: "Note 4",
-    status: APPOINTMENT_STATUS.CHECK_OUT,
-  },
-  {
-    id: "5",
-    doctorId: "5",
-    doctorName: "Doctor 5",
-    patientId: "5",
-    patientName: "Patient 5",
-    startTime: new Date("2024-01-28T17:45:00+07:00"),
-    endTime: new Date("2024-01-28T18:00:00+07:00"),
-    note: "Note 5",
-    status: APPOINTMENT_STATUS.BOOK,
-  },
-];
 
 const datesWhitelist = [
   {
@@ -93,36 +39,7 @@ const datesWhitelist = [
   },
 ];
 
-const data = [
-  {
-    time: "09:00",
-    title: "Archery Training",
-    description:
-      "The Beginner Archery and Beginner Crossbow course does not require you to bring any equipment, since everything you need will be provided for the course. ",
-    circleColor: "#009688",
-    lineColor: "#009688",
-  },
-  {
-    time: "10:45",
-    title: "Play Badminton",
-    description:
-      "Badminton is a racquet sport played using racquets to hit a shuttlecock across a net.",
-  },
-  { time: "12:00", title: "Lunch" },
-  {
-    time: "14:00",
-    title: "Watch Soccer",
-    description:
-      "Team sport played between two teams of eleven players with a spherical ball. ",
-    lineColor: "#009688",
-  },
-  {
-    time: "16:30",
-    title: "Go to Fitness center",
-    description: "Look out for the Best Gym & Fitness Centers around me :)",
-    circleColor: "#009688",
-  },
-];
+
 
 type TimelineEventsState = {
   time: string;
@@ -133,6 +50,7 @@ type TimelineEventsState = {
 };
 
 export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
+  const clinic = useAppSelector(ClinicSelector);
   //const [markedDate, setMarkedDate] = useState<Date[]>([]);
   const [currentDate, setCurrentDate] = useState(
     `${moment().format("YYYY")}-${moment().format("MM")}-${moment().format(
@@ -140,42 +58,78 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
     )}`
   );
   //const [todoList, setTodoList] = useState<Array<IAppointment> | undefined>();
+  const [appointmentList, setAppointmentList] = useState<IAppointment[]>([])
+  const [currentDay, setCurrentDay] = useState(moment().format());
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState<IAppointment | undefined>();
-  const [timelineEvents, setTimelineEvents] = useState<
-    TimelineEventsState[] | undefined
-  >();
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEventsState[] >();
+  const [isReRender, setIsReRender] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<APPOINTMENT_STATUS>()
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedDay, setSelectedDay] = useState({
+    [`${moment().format("YYYY")}-${moment().format("MM")}-${moment().format(
+      "DD"
+    )}`]: {
+      selected: true,
+      selectedColor: "#2E66E7",
+    },
+  });
+  // const vietnamMoment = moment().utcOffset("+07:00"); // Đặt múi giờ UTC+7 cho Việt Nam
+  // const formattedDate = `${vietnamMoment.format("YYYY-MM-DD")}`;
+  const toast = useToast();
+  const handleReRender = () => setIsReRender(!isReRender)
+  const getAppointmentList = async () => {
+    try {
+      if (clinic?.id)
+      {
+        const response = await appointmentApi.getAppointmentList({
+          clinicId: clinic?.id,
+        })
+        console.log('response: ', response);
+        if (response.status && response.data) {
+          setAppointmentList(response.data)
+        } else {
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() =>{
+    getAppointmentList();
+    console.log('vao day')
+  }, [clinic?.id, isReRender])
 
-  const vietnamMoment = moment().utcOffset("+07:00"); // Đặt múi giờ UTC+7 cho Việt Nam
-  const formattedDate = `${vietnamMoment.format("YYYY-MM-DD")}`;
-
-  const todoList: Array<IAppointment> = useMemo(() => {
-    const currentDateObj = new Date(currentDate);
-    return appointments.filter((item) => {
-      return (
-        currentDateObj.getFullYear() === item.startTime.getFullYear() &&
-        currentDateObj.getMonth() === item.startTime.getMonth() &&
-        currentDateObj.getDate() === item.startTime.getDate()
+  console.log('render lai trang lich')
+  const currentDateAppointments: Array<IAppointment> = useMemo(() => {
+    //const currentDateObj = new Date(currentDate);
+    return appointmentList.filter((item) => {
+      return (     
+        currentDate === item.date
       );
     });
   }, [currentDate]);
 
   const markedDate = useMemo(
     () =>
-      appointments.map((item) => ({
-        date: item.startTime,
-        dots: [
-          {
-            color: "blue",
-          },
-        ],
-      })),
-    [appointments]
+      appointmentList.reduce((accumulator: any, item) => {
+        const key = item.date;
+  
+        // Nếu key đã tồn tại trong accumulator, thì cập nhật thuộc tính marked
+        if (accumulator[key]) {
+          accumulator[key].marked = true;
+        } else {
+          // Nếu key chưa tồn tại, tạo mới với thuộc tính marked
+          accumulator[key] = { marked: true, dotColor: 'blue'};
+        }
+  
+        return accumulator;
+      }, {}),
+    [appointmentList]
   );
   console.log("markedDate: ", markedDate);
-
   useEffect(() => {
-    console.log("toldoList before: ", todoList);
+    console.log("toldoList before: ", currentDateAppointments);
     console.log("current day: ", currentDate);
     const fetchData = async () => {
       try {
@@ -184,46 +138,28 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
           "timeline events after getTimelineEvents: ",
           timelineEvents
         );
-        console.log("todoList after: ", todoList);
+        console.log("currentDateAppointments after: ", currentDateAppointments);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-    console.log("todoList after after: ", todoList);
+    console.log("currentDateAppointments after after: ", currentDateAppointments);
   }, [currentDate]);
 
   const handleModalVisible = () => {
     setModalVisible(!isModalVisible);
   };
 
-  async function filterTodoListsByDate(currentDateObj: Date) {
-    const todoLists = appointments.filter((item) => {
-      return (
-        currentDateObj.getFullYear() === item.startTime.getFullYear() &&
-        currentDateObj.getMonth() === item.startTime.getMonth() &&
-        currentDateObj.getDate() === item.startTime.getDate()
-      );
-    });
-
-    // Other asynchronous operations can be added here if needed
-
-    return todoLists;
-  }
-
   const getTimelineEvents = async () => {
-    console.log("to do list in settimelineevent: ", todoList);
-    const newArray = todoList?.map((item: IAppointment) => {
-      const startTimeString = item.startTime.toISOString();
+    console.log("appointment list in settimelineevent: ", currentDateAppointments);
+    const newArray = currentDateAppointments?.map((item: IAppointment) => {
       // console.log('start time string: ', startTimeString);
       return {
-        time: startTimeString.slice(
-          startTimeString.indexOf("T") + 1,
-          startTimeString.indexOf("T") + 6
-        ),
-        title: item.patientName,
-        description: item.note,
+        time: item.startTime,
+        title: item.patient.firstName + ' ' + item.patient.lastName,
+        description: item.description? item.description : "",
         circleColor: "#009688",
         lineColor: "#009688",
       };
@@ -233,20 +169,71 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
     console.log("timelineevent in gettimelineEvent after: ", timelineEvents);
   };
 
+  const handleUpdateAppointment = async () => {
+    setIsLoading(true)
+    const payload: IUpdateAppointmentPayload = {
+      clinicId: clinic!.id,
+      doctorId: parseInt(selectedTask!.doctorId),
+      serviceId: selectedTask!.serviceId,
+      date: selectedTask!.date,
+      patientId: parseInt(selectedTask!.patientId),
+      startTime: selectedTask!.startTime,
+      endTime: selectedTask!.endTime,
+      description: selectedTask!.description,
+      status: selectedStatus!
+    }
+    console.log('payload:', payload);
+    const res = await appointmentApi.updateAppointment(parseInt(selectedTask!.id), payload)
+    setModalVisible(false)
+    setIsLoading(false)
+    if (res.status) {
+      toast.show({
+        render: () => {
+            return (
+            <ToastAlert
+                title="Thành công"
+                description="Cập nhật lịch hẹn thành công!"
+                status="success"
+            />
+            );
+        },
+        });
+    }
+    else {
+        toast.show({
+            render: () => {
+            return (
+                <ToastAlert
+                title="Lỗi"
+                description="Cập nhật thất bại. Vui lòng kiểm tra lại thông tin."
+                status="error"
+                />
+            );
+            },
+        });
+    }
+
+  }
+
+
   return (
     <Fragment>
+      <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
       {selectedTask !== null && (
         <>
           <Task {...{ setModalVisible, isModalVisible }}>
-            {/* <DateTimePicker
-            isVisible={isDateTimePickerVisible}
-            onConfirm={handleDatePicked}
-            onCancel={hideDateTimePicker}
-            mode="time"
-            date={new Date()}
-            isDarkModeEnabled
-          /> */}
+            
             <View style={styles.taskContainer}>
+              <Text
+                style={{
+                  color: "#9CAAC4",
+                  fontSize: 16,
+                  fontWeight: "600",
+                  marginBottom: 5
+                }}
+              >
+                Tên bệnh nhân
+              </Text>
               <TextInput
                 style={styles.title}
                 onChangeText={(text) => {
@@ -256,20 +243,21 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                   prevSelectedTask.title = text;
                   setSelectedTask(prevSelectedTask);
                 }}
-                value={selectedTask?.patientName}
+                value={selectedTask?.patient.firstName + ' ' + selectedTask?.patient.lastName}
                 placeholder="Tên bệnh nhân?"
               />
               <Text
                 style={{
-                  fontSize: 14,
-                  color: "#BDC6D8",
+                  color: "#9CAAC4",
+                  fontSize: 16,
+                  fontWeight: "600",
                   marginVertical: 10,
                 }}
               >
                 Bác sĩ
               </Text>
               <View style={{ flexDirection: "row" }}>
-                <Text>{selectedTask?.doctorName}</Text>
+                <Text>{selectedTask?.doctor.firstName + ' ' + selectedTask?.doctor.lastName}</Text>
               </View>
               <View style={styles.notesContent} />
               <View>
@@ -295,8 +283,8 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                     prevSelectedTask.notes = text;
                     setSelectedTask(prevSelectedTask);
                   }}
-                  value={selectedTask?.note}
-                  placeholder="Enter notes about the task."
+                  value={selectedTask?.description}
+                  placeholder=""
                 />
               </View>
               <View style={styles.separator} />
@@ -318,7 +306,7 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                   }}
                 >
                   <Text style={{ fontSize: 19 }}>
-                    {`${moment(selectedTask?.startTime).format("LT")}`}
+                    {selectedTask?.startTime}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -340,27 +328,16 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                   >
                     Trạng thái
                   </Text>
-                  {/* <View
-                  style={{
-                    height: 25,
-                    marginTop: 3
-                  }}
-                >
-                  <Text style={{ fontSize: 19 }}>
-                    {moment(selectedTask?.alarm?.time || moment()).format(
-                      'h:mm A'
-                    )}
-                  </Text>
-                </View> */}
+                  
                   <SelectDropdown
                     data={[
-                      "Chưa xác nhận",
-                      "Đã xác nhận",
-                      "Đã đến hẹn",
-                      "Hủy hẹn",
+                      APPOINTMENT_STATUS.PENDING,
+                      APPOINTMENT_STATUS.CONFIRM,
+                      APPOINTMENT_STATUS.CHECK_IN,                      
+                      APPOINTMENT_STATUS.CANCEL,
                     ]}
                     onSelect={(selectedItem, index) => {
-                      console.log(selectedItem, index);
+                      setSelectedStatus(selectedItem)
                     }}
                     buttonTextAfterSelection={(selectedItem, index) => {
                       // text represented after item is selected
@@ -372,7 +349,7 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                       // if data array is an array of objects then return item.property to represent item in dropdown
                       return item;
                     }}
-                    defaultButtonText={"Chưa xác nhận"}
+                    defaultButtonText={selectedTask?.status}
                   />
                 </View>
                 {/* <Switch
@@ -380,63 +357,31 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                 onValueChange={handleAlarmSet}
               /> */}
               </View>
-              <View
+              <View>
+              <TouchableOpacity
                 style={{
-                  flexDirection: "row",
+                  width: 180,
+                  height: 48,
+                  alignSelf: "flex-end",
+                  marginTop: 15,
+                  borderRadius: 5,
                   justifyContent: "center",
-                  alignItems: "center",
+                  backgroundColor:
+                     "#2E66E7",
                 }}
-              >
-                {/* <TouchableOpacity
-                onPress={async () => {
-                  handleModalVisible();
-                  console.log('isOn', selectedTask?.alarm.isOn);
-                  if (selectedTask?.alarm.isOn) {
-                    await updateAlarm();
-                  } else {
-                    await deleteAlarm();
-                  }
-                  await updateSelectedTask({
-                    date: currentDate,
-                    todo: selectedTask
-                  });
-                  updateCurrentTask(currentDate);
-                }}
-                style={styles.updateButton}
+                onPress={handleUpdateAppointment}
               >
                 <Text
                   style={{
                     fontSize: 18,
-                    textAlign: 'center',
-                    color: '#fff'
+                    textAlign: "center",
+                    color: "#fff",
                   }}
                 >
-                  UPDATE
+                  Cập nhật trạng thái
                 </Text>
-              </TouchableOpacity> */}
-                {/* <TouchableOpacity
-                onPress={async () => {
-                  handleModalVisible();
-                  deleteAlarm();
-                  await deleteSelectedTask({
-                    date: currentDate,
-                    todo: selectedTask
-                  });
-                  updateCurrentTask(currentDate);
-                }}
-                style={styles.deleteButton}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    textAlign: 'center',
-                    color: '#fff'
-                  }}
-                >
-                  DELETE
-                </Text>
-              </TouchableOpacity> */}
-              </View>
+              </TouchableOpacity>
+            </View>
             </View>
           </Task>
         </>
@@ -446,55 +391,8 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
           flex: 1,
         }}
       >
-        <CalendarStrip
-          calendarAnimation={{ type: "sequence", duration: 30 }}
-          daySelectionAnimation={{
-            type: "background",
-            duration: 200,
-            highlightColor: "#2E66E7",
-          }}
-          style={{
-            height: 150,
-            paddingTop: 20,
-            paddingBottom: 20,
-          }}
-          calendarHeaderStyle={{ color: "#000000" }}
-          dateNumberStyle={{ color: "#000000", paddingTop: 10 }}
-          dateNameStyle={{ color: "#BBBBBB" }}
-          highlightDateNumberStyle={{
-            color: "#fff",
-            backgroundColor: "#2E66E7",
-            marginTop: 10,
-            height: 35,
-            width: 35,
-            textAlign: "center",
-            borderRadius: 17.5,
-            overflow: "hidden",
-            paddingTop: 6,
-            fontWeight: "400",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          highlightDateNameStyle={{ color: "#2E66E7" }}
-          disabledDateNameStyle={{ color: "grey" }}
-          disabledDateNumberStyle={{ color: "grey", paddingTop: 10 }}
-          datesWhitelist={datesWhitelist}
-          iconLeft={leftArrowIcon}
-          iconRight={rightArrowIcon}
-          iconContainer={{ flex: 0.1 }}
-          // If you get this error => undefined is not an object (evaluating 'datesList[_this.state.numVisibleDays - 1].date')
-          // temp: https://github.com/BugiDev/react-native-calendar-strip/issues/303#issuecomment-864510769
-          markedDates={markedDate}
-          selectedDate={moment(currentDate)}
-          onDateSelected={(date) => {
-            console.log("data calendar strip ", date);
-            const selectedDate = `${moment(date).format("YYYY")}-${moment(
-              date
-            ).format("MM")}-${moment(date).format("DD")}`;
-            //updateTodoList(selectedDate);
-            setCurrentDate(selectedDate);
-          }}
-        />
+        
+        
         <TouchableOpacity
           onPress={() => navigation.navigate("CreateTaskNavigator")}
           style={styles.viewTask}
@@ -512,15 +410,55 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
           style={{
             width: "100%",
             height: Dimensions.get("window").height - 170,
-            // height: 2000
+            marginTop: -20
           }}
-        >
+        >           
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 100,
             }}
             nestedScrollEnabled={true}
           >
+            <CalendarList
+              style={{
+                width: 350,
+                height: 350,
+                alignSelf: 'center', 
+              }}
+              current={currentDay}
+              minDate={moment().format()}
+              horizontal
+              pastScrollRange={0}
+              pagingEnabled
+              calendarWidth={350}
+              onDayPress={(day) => {
+                setSelectedDay({
+                  [day.dateString]: {
+                    selected: true,
+                    selectedColor: "#2E66E7",
+                  },
+                });
+                setCurrentDay(day.dateString);
+                setCurrentDate(day.dateString);
+              }}
+              monthFormat="yyyy MMMM"
+              hideArrows
+              markingType="custom"
+              theme={{
+                selectedDayBackgroundColor: "#2E66E7",
+                selectedDayTextColor: "#ffffff",
+                todayTextColor: "#2E66E7",
+                backgroundColor: "#eaeef7",
+                calendarBackground: "#eaeef7",
+                textDisabledColor: "#d9dbe0",
+              }}
+              //markedDates={selectedDay}
+              markedDates={{
+                ...markedDate,
+                ...selectedDay,
+
+              }}
+            />
             <Timeline
               style={{ flex: 1 }}
               data={timelineEvents}
@@ -535,14 +473,11 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                 color: "white",
                 padding: 5,
                 borderRadius: 13,
-                overflow: "hidden",
+                overflow: "hidden"
               }}
               descriptionStyle={{ color: "gray" }}
-              // options={{
-              //   style:{paddingTop:5}
-              // }}
             />
-            {todoList?.map((item) => (
+            {currentDateAppointments?.map((item) => (
               <TouchableOpacity
                 onPress={() => {
                   setSelectedTask(item);
@@ -578,7 +513,7 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                         fontWeight: "700",
                       }}
                     >
-                      {item.patientName}
+                      {item.patient.firstName + " " + item.patient.lastName}
                     </Text>
                   </View>
                   <View>
@@ -591,17 +526,17 @@ export default function CalendarScreen({ navigation }: CalendarNavigatorProps) {
                       <Text
                         style={{
                           color: "#BBBBBB",
-                          fontSize: 14,
+                          fontSize: 16,
                           marginRight: 5,
                         }}
-                      >{`${moment(item.startTime).format("LLL")}    `}</Text>
+                      >{item.startTime + "    "}</Text>
                       <Text
                         style={{
                           color: "#BBBBBB",
-                          fontSize: 14,
+                          fontSize: 16,
                         }}
                       >
-                        {item.note}
+                        {item.description}
                       </Text>
                     </View>
                   </View>
@@ -728,7 +663,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   taskContainer: {
-    height: 475,
+    height: 510,
     width: 327,
     alignSelf: "center",
     borderRadius: 20,

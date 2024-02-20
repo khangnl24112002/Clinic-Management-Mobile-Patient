@@ -4,7 +4,6 @@ import {
 } from "@react-navigation/native-stack";
 import { ClinicInfoNavigatorProps } from "./UserNavigator";
 import ClinicInfoDashboardScreen from "../screens/ClinicInfoScreen/ClinicInfoDashboardScreen";
-import { IClinicInfo } from "../types/clinic.types";
 import { useEffect } from "react";
 import { clinicService } from "../services";
 import { useToast } from "native-base";
@@ -43,26 +42,28 @@ export default function ClinicInfoNavigator({
     // Call API to get clinic detail
     const getClinicDetail = async () => {
       try {
-        const response = await clinicService.getClinicByClinicId(clinic.id);
+        const response = await clinicService.getClinicByClinicId(clinic?.id);
         if (response.data) {
           dispatch(updateClinic(response.data));
         }
       } catch (error) {
-        toast.show({
-          render: () => {
-            return (
-              <ToastAlert
-                title="Lỗi"
-                description="Không lấy được dữ liệu. Vui lòng thử lại sau."
-                status="error"
-              />
-            );
-          },
-        });
+        if (clinic?.id) {
+          toast.show({
+            render: () => {
+              return (
+                <ToastAlert
+                  title="Lỗi"
+                  description="Không lấy được dữ liệu. Vui lòng thử lại sau."
+                  status="error"
+                />
+              );
+            },
+          });
+        }
       }
     };
     getClinicDetail();
-  }, [clinic.id]);
+  }, [clinic?.id]);
   return (
     <ClinicInfoStackNavigator.Navigator initialRouteName="ClinicInfoDashboard">
       <ClinicInfoStackNavigator.Screen

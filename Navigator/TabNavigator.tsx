@@ -34,7 +34,9 @@ export type RootNativeTabParamList = {
   AuthenticationNavigator: {
     setLogin: (user: IUserInfo | null, token: string | null) => void | any;
   };
-  ProfileNavigator: undefined;
+  ProfileNavigator: {
+    setLogout: () => void;
+  };
   NewsNavigator: undefined;
   MedicalRecordNavigator: undefined;
   ClinicNavigator: undefined;
@@ -393,6 +395,7 @@ const TabNavigator = () => {
             <RootTab.Screen
               name="ProfileNavigator"
               component={ProfileNavigator}
+              initialParams={{ setLogout }}
               options={{
                 headerTitle: "Tài khoản",
                 tabBarIcon: ({ focused, color, size }) => {

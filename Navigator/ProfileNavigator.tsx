@@ -8,7 +8,7 @@ import { ProfileNavigatorProps } from "./TabNavigator";
 
 export type ProfileNavigatorTopTabParamList = {
   // undefined: the route doesn't have params
-  UserProfile: undefined;
+  UserProfile: { setLogout: () => void };
   Connecting: undefined;
   UpdateUserInfo: undefined;
 };
@@ -35,6 +35,7 @@ export default function ProfileNavigator({
   navigation,
   route,
 }: ProfileNavigatorProps) {
+  const { setLogout } = route.params;
   return (
     <ProfileTopTabNavigator.Navigator
       initialRouteName="UserProfile"
@@ -63,6 +64,7 @@ export default function ProfileNavigator({
       <ProfileTopTabNavigator.Screen
         name="UserProfile"
         component={ProfileScreen}
+        initialParams={{ setLogout }}
         options={{ tabBarLabel: "Thông tin cá nhân" }}
       />
       <ProfileTopTabNavigator.Screen

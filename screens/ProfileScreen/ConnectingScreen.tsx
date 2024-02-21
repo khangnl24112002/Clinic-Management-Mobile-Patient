@@ -25,7 +25,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { appColor } from "../../theme";
 GoogleSignin.configure({
   webClientId:
-    "931199521045-rn8i7um077q2b9pgpsrdejj90qj26fvv.apps.googleusercontent.com",
+    // "931199521045-rn8i7um077q2b9pgpsrdejj90qj26fvv.apps.googleusercontent.com",
+    "698964272341-u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
 });
 
 const ConnectingScreen = ({ navigation, route }: ConnectingScreenProps) => {
@@ -119,11 +120,10 @@ const ConnectingScreen = ({ navigation, route }: ConnectingScreenProps) => {
       alignItems="center"
       p={5}
       borderBottomRadius={20}
+      // minH="80%"
+      // maxH="80%"
     >
-      <ChangePasswordModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-      />
+      <ChangePasswordModal showModal={showModal} setShowModal={setShowModal} />
       <Box alignItems="flex-start" width="100%">
         <VStack space="5">
           <HStack justifyContent="space-between" width="full">
@@ -148,7 +148,7 @@ const ConnectingScreen = ({ navigation, route }: ConnectingScreenProps) => {
               {isFacebookLink ? "Đã kết nối" : "Chưa kết nối"}
             </Text>
           </HStack>
-          <HStack width="full" mt="5/6">
+          <HStack width="full" mt="4/6">
             <Button
               width="full"
               onPress={isGoogleLink ? disConnectGoogle : connectGoogle}

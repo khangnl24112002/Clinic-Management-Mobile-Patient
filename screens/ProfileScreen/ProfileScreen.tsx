@@ -1,6 +1,6 @@
 import React from "react";
-import { useAppSelector } from "../../hooks";
-import { userInfoSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { deleteClinic, logout, userInfoSelector } from "../../store";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/auth";
 import AddNewPasswordModal from "./AddNewPasswordModal";
@@ -17,25 +17,46 @@ import {
   HStack,
   VStack,
 } from "native-base";
-import { authApi } from "../../services/auth.services";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { UserProfileScreenProps } from "../../Navigator/ProfileNavigator";
-import { MaterialIcons } from "@expo/vector-icons";
 import { appColor } from "../../theme";
 import { FCMConfig } from "../../config/firebaseCloudMessage";
 import dayjs from "dayjs";
-GoogleSignin.configure({
-  webClientId:
-    "931199521045-rn8i7um077q2b9pgpsrdejj90qj26fvv.apps.googleusercontent.com",
-});
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import messaging from "@react-native-firebase/messaging";
+import { notificationService } from "../../services";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
+  const { setLogout } = route.params;
   const userInfo = useAppSelector(userInfoSelector);
-  const dateString = userInfo?.birthday?.slice(0, 10);
-  //console.log('profile page: ', userInfo);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(true);
+  const dispatch = useAppDispatch();
+
   const handleChangeUserInfo = () => {
     navigation.navigate("UpdateUserInfo");
+  };
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    // Call API to delete FCM token saved in server
+    try {
+      const token = await messaging().getToken();
+      if (userInfo) {
+        const response = await notificationService.deleteFCMToken(
+          userInfo.id,
+          token
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.removeItem("token");
+    dispatch(logout());
+    dispatch(deleteClinic());
+    setLogout();
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -66,6 +87,7 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
         borderBottomWidth={1}
         borderBottomColor="#EDEDF2"
       >
+        <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
         <Avatar
           alignSelf="center"
           bg="grey"
@@ -131,9 +153,12 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
             </Text>
             <Text color={appColor.textSecondary}>{userInfo?.phone}</Text>
           </HStack>
-          <HStack width="full" mt={10}>
-            <Button width="full" onPress={handleChangeUserInfo}>
-              Thay đổi thông tin cá nhân
+          <HStack width="full" space={5}>
+            <Button flex={1} onPress={handleChangeUserInfo}>
+              Cập nhật
+            </Button>
+            <Button flex={1} onPress={handleLogout}>
+              Đăng xuất
             </Button>
           </HStack>
         </VStack>

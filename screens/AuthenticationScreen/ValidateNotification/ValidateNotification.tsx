@@ -11,11 +11,12 @@ import {
   Link,
   useToast,
 } from "native-base";
-import { ValidateNotificationProps } from "../../../Navigator/StackNavigator";
+
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import React from "react";
 import ToastAlert from "../../../components/Toast/Toast";
 import { authApi } from "../../../services";
+import { ValidateNotificationProps } from "../../../Navigator/AuthenticationNavigator";
 const ValidateNotification: React.FC<ValidateNotificationProps> = ({
   navigation,
   route,

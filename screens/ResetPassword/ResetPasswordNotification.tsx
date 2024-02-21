@@ -1,5 +1,5 @@
 import React from "react";
-import { ResetPasswordNotificationScreenProps } from "../../Navigator/StackNavigator";
+import { ResetPasswordNotificationScreenProps } from "../../Navigator/TabNavigator";
 import {
   Box,
   Heading,
@@ -20,12 +20,9 @@ import { appColor, theme } from "../../theme";
 import ToastAlert from "../../components/Toast/Toast";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
-
-
-const ResetPasswordNotificationScreen: React.FC<ResetPasswordNotificationScreenProps> = ({
-  navigation,
-  route,
-}) => {
+const ResetPasswordNotificationScreen: React.FC<
+  ResetPasswordNotificationScreenProps
+> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { setLogin } = route.params;
   const { email } = route.params;
@@ -40,28 +37,25 @@ const ResetPasswordNotificationScreen: React.FC<ResetPasswordNotificationScreenP
       .then(async (response) => {
         console.log(response);
         if (response.status) {
-            
-            toast.show({
-                render: () => {
-                  return (
-                    <ToastAlert
-                      title="Thành công"
-                      description="Gửi email reset password thành công!"
-                      status="success"
-                    />
-                  );
-                },
-              });
+          toast.show({
+            render: () => {
+              return (
+                <ToastAlert
+                  title="Thành công"
+                  description="Gửi email reset password thành công!"
+                  status="success"
+                />
+              );
+            },
+          });
         }
-
       })
       .catch((error) => {
         // Print error to the screen
         console.log(error.response.data);
       });
-      setIsLoading(false);
+    setIsLoading(false);
   };
-
 
   return (
     <NativeBaseProvider theme={theme}>
@@ -116,7 +110,9 @@ const ResetPasswordNotificationScreen: React.FC<ResetPasswordNotificationScreenP
               alignItems="center"
               justifyContent="flex-start"
             >
-              <Text fontSize={18}>Chúng tôi đã gửi một email để cập nhật lại mật khẩu đến</Text>
+              <Text fontSize={18}>
+                Chúng tôi đã gửi một email để cập nhật lại mật khẩu đến
+              </Text>
               <Link
                 isUnderlined={false}
                 _text={{
@@ -128,9 +124,6 @@ const ResetPasswordNotificationScreen: React.FC<ResetPasswordNotificationScreenP
               </Link>
             </VStack>
             <VStack space={2}>
-              
-             
-              
               <VStack space={2} mt={5}>
                 <Button
                   onPress={handleSubmit}

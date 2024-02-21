@@ -1,5 +1,5 @@
 import React from "react";
-import { ResetPasswordScreenProps } from "../../Navigator/StackNavigator";
+import { ResetPasswordScreenProps } from "../../Navigator/TabNavigator";
 import {
   Box,
   Heading,
@@ -24,12 +24,11 @@ import { appColor, theme } from "../../theme";
 // import { authApi } from "../../../services";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
-
-const schema = yup.object().shape({ 
+const schema = yup.object().shape({
   email: yup
     .string()
     .required("Thông tin email là bắt buộc")
-    .email("Email không hợp lệ"),  
+    .email("Email không hợp lệ"),
 });
 
 const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
@@ -41,20 +40,19 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
   const {
     control,
     formState: { errors },
-    getValues
+    getValues,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       // giá trị mặc định của các field
-      
+
       email: "",
-     
     },
   });
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const emailReset = getValues("email")
+    const emailReset = getValues("email");
     console.log(emailReset);
     // Send data to server
     await authApi
@@ -62,19 +60,19 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
       .then(async (response) => {
         console.log(response);
         if (response.status) {
-            // Redirect đến trang ResetPassword
-          navigation.navigate("ResetPasswordNotification", { setLogin, email: emailReset });
-
+          // Redirect đến trang ResetPassword
+          navigation.navigate("ResetPasswordNotification", {
+            setLogin,
+            email: emailReset,
+          });
         }
-
       })
       .catch((error) => {
         // Print error to the screen
         console.log(error.response.data);
       });
-      setIsLoading(false);
+    setIsLoading(false);
   };
-
 
   return (
     <NativeBaseProvider theme={theme}>
@@ -142,7 +140,6 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
               </Link>
             </HStack>
             <VStack space={2}>
-              
               {/******************************Email ********************************/}
               <FormControl isRequired isInvalid={errors.email ? true : false}>
                 <FormControl.Label
@@ -175,7 +172,7 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
                 </FormControl.ErrorMessage>
               </FormControl>
               {/******************************Password ********************************/}
-              
+
               <VStack space={2} mt={5}>
                 <Button
                   onPress={handleSubmit}
@@ -187,7 +184,6 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
                   Gửi email reset password
                 </Button>
               </VStack>
-              
             </VStack>
           </ScrollView>
         </VStack>

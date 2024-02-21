@@ -1,5 +1,5 @@
 import React from "react";
-import { RegisterScreenProps } from "../../../Navigator/StackNavigator";
+import { RegisterScreenProps } from "../../../Navigator/TabNavigator";
 import {
   Box,
   Heading,
@@ -15,6 +15,7 @@ import {
   HStack,
   Image,
   ScrollView,
+  useToast,
 } from "native-base";
 
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
@@ -23,6 +24,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { appColor, theme } from "../../../theme";
 import { authApi } from "../../../services";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
+import ToastAlert from "../../../components/Toast/Toast";
 
 interface IRegisterFormData {
   firstName: string;
@@ -53,12 +55,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
   navigation,
   route,
 }) => {
+  const toast = useToast();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { setLogin } = route.params;
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<IRegisterFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -81,14 +85,25 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
       .then(async (response) => {
         if (response.data)
           // Redirect đến trang Validate
-          navigation.navigate("ValidateNotification", {
-            setLogin,
-            email: data.email,
-          });
+          reset();
+        navigation.navigate("ValidateNotification", {
+          setLogin,
+          email: data.email,
+        });
       })
       .catch((error) => {
         // Print error to the screen
-        console.log(error.response.data);
+        toast.show({
+          render: () => {
+            return (
+              <ToastAlert
+                title="Thất bại!"
+                description={error.response.data.message}
+                status="error"
+              />
+            );
+          },
+        });
       });
     setIsLoading(false);
   };

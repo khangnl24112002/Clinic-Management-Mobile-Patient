@@ -1,11 +1,10 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ProfileScreen from "../screens/ProfileScreen/ProfileScreen";
-import { ProfileNavigatorProps } from "./UserNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ConnectingScreen from "../screens/ProfileScreen/ConnectingScreen";
-import UpdateUserInfoScreen from "../screens/UpdateUserInfo/UpdateUserInfoScreen";
 import { Dimensions } from "react-native";
 import { appColor } from "../theme";
+import { ProfileNavigatorProps } from "./TabNavigator";
 
 export type ProfileNavigatorTopTabParamList = {
   // undefined: the route doesn't have params

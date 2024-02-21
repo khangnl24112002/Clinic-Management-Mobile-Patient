@@ -26,7 +26,6 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ILoginRequest, ILoginResponse } from "../../../types";
 import * as yup from "yup";
-import { LoginScreenProps } from "../../../Navigator/StackNavigator";
 import { login } from "../../../store";
 import { authApi } from "../../../services/auth.services";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -43,6 +42,7 @@ import {
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { appColor } from "../../../theme";
 import ToastAlert from "../../../components/Toast/Toast";
+import { LoginScreenProps } from "../../../Navigator/AuthenticationNavigator";
 GoogleSignin.configure({
   webClientId:
     "698964272341-u24tokvut5fd5heu7vqmh58c3qmd6kfv.apps.googleusercontent.com",
@@ -171,10 +171,7 @@ const Login: React.FC<LoginScreenProps> = ({
               setShowEnterAdditionalPasswordModal(true);
             } else {
               // Kiểm tra ModuleId: Nếu moduleId = 2 hoặc = 5 thì mới cho vào
-              if (
-                res.data.user.moduleId !== 2 ||
-                res.data.user.moduleId !== 5
-              ) {
+              if (res.data.user.moduleId !== 3) {
                 toast.show({
                   render: () => {
                     return (
@@ -278,7 +275,7 @@ const Login: React.FC<LoginScreenProps> = ({
             setShowEnterAdditionalPasswordModal(true);
           } else {
             // Kiểm tra ModuleId: Nếu moduleId = 2 hoặc = 5 thì mới cho vào
-            if (res.data.user.moduleId !== 2 || res.data.user.moduleId !== 5) {
+            if (res.data.user.moduleId !== 3) {
               toast.show({
                 render: () => {
                   return (
@@ -405,7 +402,7 @@ const Login: React.FC<LoginScreenProps> = ({
       .login(data)
       .then(async (res) => {
         if (res.status && res.data) {
-          if (res.data.user.moduleId == 2 || res.data.user.moduleId == 5) {
+          if (res.data.user.moduleId == 3) {
             // Dispatch data to reducer
             dispatch(login(res.data));
             // save data in async storage
@@ -630,9 +627,9 @@ const Login: React.FC<LoginScreenProps> = ({
                     color: "primary.300",
                   }}
                   alignSelf="center"
-                  onPress={() =>
-                    navigation.navigate("ResetPassword", { setLogin })
-                  }
+                  // onPress={() =>
+                  //   navigation.navigate("ResetPassword", { setLogin })
+                  // }
                 >
                   Quên mật khẩu?
                 </Link>

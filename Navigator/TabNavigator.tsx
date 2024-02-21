@@ -7,7 +7,7 @@ import {
   BottomTabScreenProps,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
-import { NativeBaseProvider, Text, useToast } from "native-base";
+import { HStack, NativeBaseProvider, Text, useToast } from "native-base";
 import { ILoginResponse, IUserInfo } from "../types";
 import { useAppDispatch } from "../hooks";
 import { LogBox } from "react-native";
@@ -19,7 +19,7 @@ import firebase from "firebase/compat";
 import { firebaseConfig } from "../config/firebase";
 import SplashScreen from "../screens/AuthenticationScreen/SplashScreen/SplashScreen";
 import dynamicLinks from "@react-native-firebase/dynamic-links";
-import { theme } from "../theme";
+import { appColor, theme } from "../theme";
 import { ReactNavigationTheme } from "../config/react-navigation.theme";
 import AuthenticationNavigator from "./AuthenticationNavigator";
 import ProfileNavigator from "./ProfileNavigator";
@@ -38,7 +38,9 @@ export type RootNativeTabParamList = {
   NewsNavigator: undefined;
   MedicalRecordNavigator: undefined;
   ClinicNavigator: undefined;
-  LandingPageScreen: undefined;
+  LandingPageScreen: {
+    setLogin: (user: IUserInfo | null, token: string | null) => void | any;
+  };
   AppointmentNavigator: undefined;
 };
 
@@ -231,6 +233,15 @@ const TabNavigator = () => {
         <RootTab.Navigator
           initialRouteName="LandingPageScreen"
           screenOptions={({ route }) => ({
+            headerTitleAlign: "center",
+            headerTintColor: appColor.title,
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 20,
+            },
+            headerStyle: {
+              backgroundColor: appColor.white,
+            },
             tabBarLabel: ({ focused, color }) => {
               if (focused) {
                 switch (route.name) {
@@ -273,7 +284,7 @@ const TabNavigator = () => {
                   case "NewsNavigator":
                     return (
                       <Text fontSize={10} color={color}>
-                        Thông báo
+                        Tin tức
                       </Text>
                     );
                 }
@@ -285,7 +296,9 @@ const TabNavigator = () => {
           <RootTab.Screen
             name="LandingPageScreen"
             component={LandingPageScreen}
+            initialParams={{ setLogin: setLogin }}
             options={{
+              headerShown: false,
               tabBarIcon: ({ focused, color, size }) => {
                 return <MaterialIcons name="home" size={size} color={color} />;
               },
@@ -296,6 +309,7 @@ const TabNavigator = () => {
             name="NewsNavigator"
             component={NewsNavigator}
             options={{
+              headerTitle: "Tin tức",
               tabBarIcon: ({ focused, color, size }) => {
                 return (
                   <MaterialCommunityIcons
@@ -311,6 +325,7 @@ const TabNavigator = () => {
             name="MedicalRecordNavigator"
             component={MedicalRecordNavigator}
             options={{
+              headerTitle: "Hồ sơ bệnh án",
               tabBarIcon: ({ focused, color, size }) => {
                 return (
                   <MaterialIcons
@@ -326,6 +341,7 @@ const TabNavigator = () => {
             name="ClinicNavigator"
             component={ClinicNavigator}
             options={{
+              headerTitle: "Phòng khám",
               tabBarIcon: ({ focused, color, size }) => {
                 return (
                   <MaterialIcons

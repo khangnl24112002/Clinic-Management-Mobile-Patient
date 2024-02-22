@@ -34,7 +34,7 @@ export default function ClinicNavigator({
         component={ClinicListScreen}
         options={{
           headerShown: false,
-          title: "Ho so benh an",
+          title: "Phòng khám",
         }}
       />
     </ClinicStackNavigator.Navigator>

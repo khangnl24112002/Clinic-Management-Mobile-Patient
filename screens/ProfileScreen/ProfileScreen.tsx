@@ -1,37 +1,63 @@
 import React from "react";
-import { useAppSelector } from "../../hooks";
-import { userInfoSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { deleteClinic, logout, userInfoSelector } from "../../store";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/auth";
+import AddNewPasswordModal from "./AddNewPasswordModal";
 import {
   Button,
   View,
   Text,
   Box,
   Avatar,
-  Input,
+  Image,
   Stack,
   Icon,
   FormControl,
   HStack,
   VStack,
 } from "native-base";
-import { showMessage } from "react-native-flash-message";
-import { authApi } from "../../services/auth.services";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { UserProfileScreenProps } from "../../Navigator/ProfileNavigator";
-import { MaterialIcons } from "@expo/vector-icons";
 import { appColor } from "../../theme";
 import { FCMConfig } from "../../config/firebaseCloudMessage";
-GoogleSignin.configure({
-  webClientId:
-    "931199521045-rn8i7um077q2b9pgpsrdejj90qj26fvv.apps.googleusercontent.com",
-});
+import dayjs from "dayjs";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import messaging from "@react-native-firebase/messaging";
+import { notificationService } from "../../services";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
+  const { setLogout } = route.params;
   const userInfo = useAppSelector(userInfoSelector);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(true);
+  const dispatch = useAppDispatch();
 
-  const handleChangeUserInfo = () => {};
+  const handleChangeUserInfo = () => {
+    navigation.navigate("UpdateUserInfo");
+  };
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    // Call API to delete FCM token saved in server
+    try {
+      const token = await messaging().getToken();
+      if (userInfo) {
+        const response = await notificationService.deleteFCMToken(
+          userInfo.id,
+          token
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.removeItem("token");
+    dispatch(logout());
+    dispatch(deleteClinic());
+    setLogout();
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     FCMConfig(userInfo?.id);
@@ -45,6 +71,14 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
       p={5}
       borderBottomRadius={20}
     >
+      {userInfo?.isInputPassword ? (
+        <></>
+      ) : (
+        <AddNewPasswordModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+        />
+      )}
       <Box
         width="full"
         alignItems="center"
@@ -53,19 +87,21 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
         borderBottomWidth={1}
         borderBottomColor="#EDEDF2"
       >
+        <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
         <Avatar
           alignSelf="center"
-          bg="green.500"
-          source={{
-            uri: `https://ui-avatars.com/api/?name=${userInfo?.firstName}`,
-          }}
-          size="xl"
+          bg="grey"
+          source={
+            userInfo?.avatar
+              ? { uri: userInfo.avatar }
+              : require("../../assets/user.png")
+          }
+          size="2xl"
           mb={2}
-        >
-          ABC
-        </Avatar>
+        />
+
         <Text color={appColor.textTitle} fontWeight="extrabold" fontSize="17">
-          {userInfo?.lastName + " " + userInfo?.firstName}
+          {userInfo?.firstName + " " + userInfo?.lastName}
         </Text>
         <Text color={appColor.textSecondary}>{userInfo?.email}</Text>
       </Box>
@@ -76,20 +112,26 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
               Họ và tên
             </Text>
             <Text color={appColor.textSecondary}>
-              {userInfo?.lastName + " " + userInfo?.firstName}
+              {userInfo?.firstName + " " + userInfo?.lastName}
             </Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
             <Text fontWeight="bold" color={appColor.textSecondary}>
               Địa chỉ
             </Text>
-            <Text color={appColor.textSecondary}>Thành phố Hồ Chí Minh</Text>
+            <Text color={appColor.textSecondary}>{userInfo?.address}</Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
             <Text fontWeight="bold" color={appColor.textSecondary}>
               Giới tính
             </Text>
-            <Text color={appColor.textSecondary}>Nam</Text>
+            <Text color={appColor.textSecondary}>
+              {userInfo?.gender === 1
+                ? "Nam"
+                : userInfo?.gender === 0
+                ? "Nữ"
+                : ""}
+            </Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
             <Text fontWeight="bold" color={appColor.textSecondary}>
@@ -101,17 +143,22 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
             <Text fontWeight="bold" color={appColor.textSecondary}>
               Ngày sinh
             </Text>
-            <Text color={appColor.textSecondary}>24/11/2002</Text>
+            <Text color={appColor.textSecondary}>
+              {dayjs(userInfo?.birthday).format("DD/MM/YYYY")}
+            </Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
             <Text fontWeight="bold" color={appColor.textSecondary}>
-              Nghề nghiệp
+              Số điện thoại
             </Text>
-            <Text color={appColor.textSecondary}>Kỹ sư phần mềm</Text>
+            <Text color={appColor.textSecondary}>{userInfo?.phone}</Text>
           </HStack>
-          <HStack width="full" mt={20}>
-            <Button width="full" onPress={handleChangeUserInfo}>
-              Thay đổi thông tin cá nhân
+          <HStack width="full" space={5}>
+            <Button flex={1} onPress={handleChangeUserInfo}>
+              Cập nhật
+            </Button>
+            <Button flex={1} onPress={handleLogout}>
+              Đăng xuất
             </Button>
           </HStack>
         </VStack>

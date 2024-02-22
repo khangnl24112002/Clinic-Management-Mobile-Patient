@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-import StackNavigator from "./Navigator/StackNavigator";
+import TabNavigator from "./Navigator/TabNavigator";
 import { NativeBaseProvider } from "native-base";
 import { theme } from "./theme";
 import "react-native-gesture-handler";
@@ -14,7 +14,7 @@ export default function App() {
     "Montserrat-LightItalic": require("./assets/fonts/Montserrat-LightItalic.ttf"),
     "Montserrat-Medium": require("./assets/fonts/Montserrat-Medium.ttf"),
     "Montserrat-MediumItalic": require("./assets/fonts/Montserrat-MediumItalic.ttf"),
-    "Montserrat-Semibold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
+    "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
     "Montserrat-SemiBoldItalic": require("./assets/fonts/Montserrat-SemiBoldItalic.ttf"),
     "Montserrat-Bold": require("./assets/fonts/Montserrat-Bold.ttf"),
     "Montserrat-BoldItalic": require("./assets/fonts/Montserrat-BoldItalic.ttf"),
@@ -28,7 +28,7 @@ export default function App() {
   return (
     <NativeBaseProvider theme={theme}>
       <Provider store={store}>
-        <StackNavigator />
+        <TabNavigator />
         <StatusBar style="auto" />
       </Provider>
     </NativeBaseProvider>

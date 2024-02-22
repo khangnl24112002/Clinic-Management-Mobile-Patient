@@ -38,9 +38,7 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="clinus.page.link" android:pathPrefix="/payment"/>
-        <data android:scheme="https" android:host="clinus.page.link" android:pathPrefix="/verify-account"/>
-        <data android:scheme="fb246416061448702"/>
+        <data android:scheme="https" android:host="clinus.page.link" android:pathPrefix="/verify-account-patient"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>

@@ -1,20 +1,26 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ProfileScreen from "../screens/ProfileScreen/ProfileScreen";
-import { ProfileNavigatorProps } from "./UserNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ConnectingScreen from "../screens/ProfileScreen/ConnectingScreen";
 import { Dimensions } from "react-native";
 import { appColor } from "../theme";
+import { ProfileNavigatorProps } from "./TabNavigator";
 
 export type ProfileNavigatorTopTabParamList = {
   // undefined: the route doesn't have params
-  UserProfile: undefined;
+  UserProfile: { setLogout: () => void };
   Connecting: undefined;
+  UpdateUserInfo: undefined;
 };
 
 export type UserProfileScreenProps = NativeStackScreenProps<
   ProfileNavigatorTopTabParamList,
   "UserProfile"
+>;
+
+export type UpdateUserInfoScreenProps = NativeStackScreenProps<
+  ProfileNavigatorTopTabParamList,
+  "UpdateUserInfo"
 >;
 
 export type ConnectingScreenProps = NativeStackScreenProps<
@@ -29,6 +35,7 @@ export default function ProfileNavigator({
   navigation,
   route,
 }: ProfileNavigatorProps) {
+  const { setLogout } = route.params;
   return (
     <ProfileTopTabNavigator.Navigator
       initialRouteName="UserProfile"
@@ -37,7 +44,6 @@ export default function ProfileNavigator({
         tabBarPressColor: appColor.backgroundPrimary,
         tabBarActiveTintColor: appColor.primary,
         tabBarLabelStyle: {
-          fontFamily: "Montserrat-SemiBold",
           fontSize: 15,
           textTransform: "none",
         },
@@ -58,6 +64,7 @@ export default function ProfileNavigator({
       <ProfileTopTabNavigator.Screen
         name="UserProfile"
         component={ProfileScreen}
+        initialParams={{ setLogout }}
         options={{ tabBarLabel: "Thông tin cá nhân" }}
       />
       <ProfileTopTabNavigator.Screen

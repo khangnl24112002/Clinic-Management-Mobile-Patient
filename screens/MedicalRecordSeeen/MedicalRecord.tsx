@@ -2,7 +2,7 @@ import { Box, HStack, Pressable, ScrollView, Text, VStack } from "native-base";
 import { useEffect, useState } from "react";
 import { medicalRecordApi } from "../../services";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { ClinicSelector } from "../../store";
+import { ClinicSelector, userInfoSelector } from "../../store";
 import { IRole } from "../../types/role.types";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,17 +20,18 @@ export default function PatientScreen({
   navigation,
   route,
 }: MedicalRecordProps) {
-  const patient = route.params?.patient;
+  
   const clinic = useAppSelector(ClinicSelector);
-  console.log('patient:', patient)
+  const userInfo = useAppSelector(userInfoSelector);
+  
   const [medicalRecordList, setMedicalRecordList] = useState<IMedicalRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [recordSelected, setRecordSelected] = useState<IMedicalRecord>()
   const getMedicalRecordList = async () => {
     try {
-      if (patient?.id)
+      if (userInfo?.id)
       {
-        const response = await medicalRecordApi.getMedicalRecords({ patientId: patient?.id });
+        const response = await medicalRecordApi.getMedicalRecords({ puid: userInfo?.id });
         console.log('response: ', response);
         if (response.status && response.data) {
             setMedicalRecordList(response.data)
@@ -43,7 +44,7 @@ export default function PatientScreen({
   };
   useEffect(() => {
     getMedicalRecordList();
-  }, [patient?.id]);
+  }, [userInfo?.id]);
   return (
     <Box
       bgColor="#fff"

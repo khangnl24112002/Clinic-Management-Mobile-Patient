@@ -51,7 +51,6 @@ type TimelineEventsState = {
 export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
   const clinic = useAppSelector(ClinicSelector);
   const userInfo = useAppSelector(userInfoSelector);
-  const patientInfo = useAppSelector(PatientSelector);
 
   const [currentDate, setCurrentDate] = useState(
     `${moment().format("YYYY")}-${moment().format("MM")}-${moment().format(
@@ -83,8 +82,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     try {
               
         const response = await appointmentApi.getAppointmentList({
-          clinicId: clinic?.id, 
-          patientId: patientInfo?.id,
+          puid: userInfo?.id
         })
         console.log('response: ', response);
         if (response.status && response.data) {

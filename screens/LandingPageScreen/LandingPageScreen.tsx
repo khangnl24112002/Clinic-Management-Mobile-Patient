@@ -8,21 +8,46 @@ import {
   Text,
   VStack,
 } from "native-base";
+import { useState, useEffect } from 'react'
 import { LandingPageScreenProps } from "../../Navigator/TabNavigator";
 import { SafeAreaView } from "react-native";
-import { useAppSelector } from "../../hooks";
-import { userInfoSelector } from "../../store";
 import { appColor } from "../../theme";
+import { IPatient, IMedicalRecord } from "../../types";
+import { patientApi } from '../../services';
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { ClinicSelector, setPatient, userInfoSelector } from "../../store";
 
 export default function LandingPageScreen({
   navigation,
   route,
 }: LandingPageScreenProps) {
-  const user = useAppSelector(userInfoSelector);
+
+  const dispatch = useAppDispatch();
+  const clinic = useAppSelector(ClinicSelector);
+  const userInfo = useAppSelector(userInfoSelector);
+  
+  const [patientInfo, setPatientInfo] = useState<IPatient>();
+
+  const getPatientInfo = async () => {
+    try {
+      const response = await patientApi.getPatients({ clinicId: clinic?.id, userId: userInfo?.id });
+        console.log('response: ', response);
+        if (response.status && response.data) {
+            setPatientInfo(response.data[0]);
+            dispatch(setPatient(response.data[0]))
+        }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getPatientInfo();
+  }, [clinic?.id]);
+
   const { setLogin } = route.params;
   const handlePressPatientRecord = () => {
-    if (user) {
-      navigation.navigate("MedicalRecordNavigator");
+    if (userInfo && patientInfo) {
+      navigation.navigate("MedicalRecordNavigator", { patient: patientInfo});
     } else {
       navigation.navigate("AuthenticationNavigator", { setLogin });
     }
@@ -31,7 +56,7 @@ export default function LandingPageScreen({
     navigation.navigate("NewsNavigator");
   };
   const handlePressAppointment = () => {
-    if (user) {
+    if (userInfo) {
       navigation.navigate("AppointmentNavigator");
     } else {
       navigation.navigate("AuthenticationNavigator", { setLogin });
@@ -58,7 +83,7 @@ export default function LandingPageScreen({
         >
           CLINUS
         </Heading>
-        <Button>DAT LICH KHAM</Button>
+        <Button>ĐẶT LỊCH KHÁM</Button>
       </Box>
       <Box minH="50%" maxH="50%" alignSelf="center">
         <VStack w="100%" h="100%" alignItems="center" flex={1}>

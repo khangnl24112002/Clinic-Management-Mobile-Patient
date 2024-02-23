@@ -1,2 +1,3 @@
-export * from './UserNavigator'
-export * from './PatientNavigator'
+export * from './MedicalRecordNavigator'
+export * from './AuthenticationNavigator'
+export * from './AppointmentNavigator'

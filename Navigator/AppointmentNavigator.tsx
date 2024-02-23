@@ -3,15 +3,22 @@ import {
   createNativeStackNavigator,
 } from "@react-navigation/native-stack";
 import { AppointmentNavigatorProps } from "./TabNavigator";
-import AppointmentDetailScreen from "../screens/AppointmentScreen/AppointmentDetailScreen";
+import CalendarScreen from "../screens/AppointmentScreen/CalendarScreen";
+import CreateTaskScreen from "../screens/AppointmentScreen/CreateTaskScreen";
 
 export type AppointmentNavigatorParamList = {
-  AppointmentDetail: undefined;
+  AppointmentScreen: undefined;
+  BookAppointmentScreen: undefined;
 };
 
-export type AppointmentDetailProps = NativeStackScreenProps<
+export type AppointmentScreenProps = NativeStackScreenProps<
   AppointmentNavigatorParamList,
-  "AppointmentDetail"
+  "AppointmentScreen"
+>;
+
+export type BookAppointmentScreenProps = NativeStackScreenProps<
+  AppointmentNavigatorParamList,
+  "BookAppointmentScreen"
 >;
 
 const AppointmentStackNavigator =
@@ -22,13 +29,21 @@ export default function AppointmentNavigator({
   route,
 }: AppointmentNavigatorProps) {
   return (
-    <AppointmentStackNavigator.Navigator initialRouteName="AppointmentDetail">
+    <AppointmentStackNavigator.Navigator initialRouteName="AppointmentScreen">
       <AppointmentStackNavigator.Screen
-        name="AppointmentDetail"
-        component={AppointmentDetailScreen}
+        name="AppointmentScreen"
+        component={CalendarScreen}
         options={{
           headerShown: false,
-          title: "zzz",
+          title: "Lịch hẹn khám",
+        }}
+      />
+      <AppointmentStackNavigator.Screen
+        name="BookAppointmentScreen"
+        component={CreateTaskScreen}
+        options={{
+          headerShown: false,
+          title: "Đặt lịch hẹn",
         }}
       />
     </AppointmentStackNavigator.Navigator>

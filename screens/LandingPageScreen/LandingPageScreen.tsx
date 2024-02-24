@@ -12,10 +12,11 @@ import { useState, useEffect } from 'react'
 import { LandingPageScreenProps } from "../../Navigator/TabNavigator";
 import { SafeAreaView } from "react-native";
 import { appColor } from "../../theme";
-import { IPatient, IMedicalRecord } from "../../types";
+import { IPatient, IMedicalRecord, IClinicInfo } from "../../types";
 import { patientApi } from '../../services';
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { ClinicSelector, setPatient, userInfoSelector } from "../../store";
+import ChooseClinicModal from "../AppointmentScreen/ChooseClinicModal";
 
 export default function LandingPageScreen({
   navigation,
@@ -47,7 +48,7 @@ export default function LandingPageScreen({
   const { setLogin } = route.params;
   const handlePressPatientRecord = () => {
     if (userInfo && patientInfo) {
-      navigation.navigate("MedicalRecordNavigator", { patient: patientInfo});
+      navigation.navigate("MedicalRecordNavigator");
     } else {
       navigation.navigate("AuthenticationNavigator", { setLogin });
     }
@@ -65,6 +66,7 @@ export default function LandingPageScreen({
   const handlePressClinic = () => {
     navigation.navigate("ClinicNavigator");
   };
+
   return (
     <SafeAreaView>
       <Box minH="50%" maxH="50%" justifyContent="center" alignSelf="center">
@@ -83,7 +85,7 @@ export default function LandingPageScreen({
         >
           CLINUS
         </Heading>
-        <Button>ĐẶT LỊCH KHÁM</Button>
+        <Button onPress={handlePressAppointment}>ĐẶT LỊCH KHÁM</Button>
       </Box>
       <Box minH="50%" maxH="50%" alignSelf="center">
         <VStack w="100%" h="100%" alignItems="center" flex={1}>

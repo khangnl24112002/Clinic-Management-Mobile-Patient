@@ -20,24 +20,15 @@ import { AppointmentScreenProps } from "../../Navigator";
 import Timeline from "react-native-timeline-flatlist";
 import moment from "moment";
 import { CalendarList } from "react-native-calendars";
-import { IAppointment, IUpdateAppointmentPayload } from "../../types";
+import { IAppointment, IClinicInfo, IUpdateAppointmentPayload } from "../../types";
 import { APPOINTMENT_STATUS } from "../../enums";
 import { appointmentApi, staffApi } from '../../services'
 import ToastAlert from "../../components/Toast/Toast";
-import ChooseClinicDialog from "./ChooseClinicDialog";
 import Task from "./Task";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from '@react-navigation/native';
-
-
-const datesWhitelist = [
-  {
-    start: moment(),
-    end: moment().add(365, "days"), // total 4 days enabled
-  },
-];
-
+import ChooseClinicModal from './ChooseClinicModal'
 
 
 type TimelineEventsState = {
@@ -60,7 +51,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
   //const [todoList, setTodoList] = useState<Array<IAppointment> | undefined>();
   const [appointmentList, setAppointmentList] = useState<IAppointment[]>([])
   const [currentDay, setCurrentDay] = useState(moment().format());
-  const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const [isOpenChooseClinic, setIsOpenChooseClinic] = useState<boolean>(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState<IAppointment | undefined>();
   const [timelineEvents, setTimelineEvents] = useState<TimelineEventsState[] >();
@@ -78,6 +69,10 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
 
   const toast = useToast();
   const handleReRender = () => setIsReRender(!isReRender)
+  const handleNavigate = (clinic: IClinicInfo) => {
+    navigation.navigate("BookAppointmentScreen", {clinic: clinic})
+    setIsOpenChooseClinic(false)
+  }
   const getAppointmentList = async () => {
     try {
               
@@ -151,11 +146,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
   }, [currentDate]);
 
   const handleAddAppointment = () => {
-    if (!clinic) {
-      setIsOpenDialog(true)
-    }
-    else
-      navigation.navigate("BookAppointmentScreen")
+      setIsOpenChooseClinic(!isOpenChooseClinic)
   }
 
   const getTimelineEvents = async () => {
@@ -179,11 +170,11 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
   return (
     <Fragment>
       <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
-
-      <ChooseClinicDialog
-        isOpen={isOpenDialog}
-        onClose={() => setIsOpenDialog(false)}        
-      />
+      <ChooseClinicModal
+        isOpen={isOpenChooseClinic}
+        onClose={() => setIsOpenChooseClinic(!isOpenChooseClinic)} 
+        handleNavigate={handleNavigate}
+        />
 
       {selectedTask !== null && (
         <>

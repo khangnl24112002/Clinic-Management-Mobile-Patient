@@ -21,7 +21,7 @@ import { IClinicStaff, IPatient, IClinicService, INewAppointmentPayload } from '
 import { v4 as uuidv4 } from "uuid";
 import SelectDropdown from "react-native-select-dropdown";
 import { useAppSelector } from "../../hooks";
-import { ClinicSelector, PatientSelector } from "../../store";
+import { ClinicSelector, PatientSelector, userInfoSelector } from "../../store";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { staffApi, patientApi, clinicServiceApi, appointmentApi } from "../../services";
 const { width: vw } = Dimensions.get("window");
@@ -34,11 +34,11 @@ export default function CreateTask({
   navigation,
   route,
 }: BookAppointmentScreenProps) {
-  const patientInfo = useAppSelector(PatientSelector);
+  const userInfo = useAppSelector(userInfoSelector);
   const [visibleHeight, setVisibleHeight] = useState(
     Dimensions.get("window").height
   );
-  const clinic = useAppSelector(ClinicSelector);
+  const clinic = route.params.clinic;
   const [currentDay, setCurrentDay] = useState(moment().format());
   const [selectedDay, setSelectedDay] = useState({
     [`${moment().format("YYYY")}-${moment().format("MM")}-${moment().format(
@@ -50,15 +50,25 @@ export default function CreateTask({
   });
   const [doctorName, setDoctorName] = useState("");
   const [doctorSelected, setDoctorSelected] = useState<IClinicStaff>();
-  //const [patientSelected, setPatientSelected] = useState<IPatient>();
   const [serviceSelected, setServiceSelected] = useState<IClinicService>();
   const [notesText, setNotesText] = useState("");
-  //const [isAddPatientInfo, setIsAddPatientInfo] = useState<boolean>(false);
   const [doctorList, setDoctorList] = useState<IClinicStaff[]>([]);
-  //const [patientList, setPatientList] = useState<IPatient[]>([]);
   const [clinicServiceList, setClinicServiceList] = useState<IClinicService[]>([]);
   const [startTime, setStartTime] = useState<string>("09:00")
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [patientInfo, setPatientInfo] = useState<IPatient>();
+
+  const getPatientInfo = async () => {
+    try {
+      const response = await patientApi.getPatients({ clinicId: clinic?.id, userId: userInfo?.id });
+        console.log('response: ', response);
+        if (response.status && response.data) {
+            setPatientInfo(response.data[0]);
+        }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const toast = useToast();
 
@@ -78,6 +88,7 @@ export default function CreateTask({
     }
   };
   useEffect(() => {
+    getPatientInfo();
     getDoctorList();
   }, [clinic?.id]);
 
@@ -233,16 +244,8 @@ export default function CreateTask({
             rowStyle={styles.dropdown1RowStyle}
             rowTextStyle={styles.dropdown1RowTxtStyle}
           />
-
           <View style={styles.notesContent} />
-          <TouchableOpacity
-            style={{position: "absolute", top: 155, right: 20}}
-            onPress={() => null}
-            >
-            <AntDesign name="adduser" size={24} color="black" />
-          </TouchableOpacity>
           
-          <View style={styles.notesContent2} />
           <SelectDropdown
               data={clinicServiceList.map((service) => (service.serviceName))}
               onSelect={(selectedItem, index) => {
@@ -382,7 +385,7 @@ export default function CreateTask({
               paddingBottom: 100,
             }}
           >
-            
+            <>{renderAddTask()}</>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -456,7 +459,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   taskContainer: {
-    height: 620,
+    height: 550,
     width: 327,
     alignSelf: "center",
     borderRadius: 20,

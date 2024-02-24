@@ -5,10 +5,11 @@ import {
 import { AppointmentNavigatorProps } from "./TabNavigator";
 import CalendarScreen from "../screens/AppointmentScreen/CalendarScreen";
 import CreateTaskScreen from "../screens/AppointmentScreen/CreateTaskScreen";
+import { IClinicInfo } from "../types";
 
 export type AppointmentNavigatorParamList = {
   AppointmentScreen: undefined;
-  BookAppointmentScreen: undefined;
+  BookAppointmentScreen: {clinic: IClinicInfo};
 };
 
 export type AppointmentScreenProps = NativeStackScreenProps<

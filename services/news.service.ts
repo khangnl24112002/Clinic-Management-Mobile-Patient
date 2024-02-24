@@ -33,4 +33,7 @@ export const newsServiceApi = {
       },
     });
   },
+  getNewsDetail(newsId: number): Promise<IApiResponse<INews>> {
+    return axiosClient.get(`/news/${newsId}`);
+  },
 };

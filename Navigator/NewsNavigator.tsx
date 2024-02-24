@@ -9,7 +9,9 @@ import NewsDetailScreen from "../screens/NewsScreen/NewsDetailScreen";
 
 export type NewsStackParamList = {
   News: undefined;
-  NewsDetail: undefined;
+  NewsDetail: {
+    newsId: number;
+  };
 };
 
 export type NewsScreenProps = NativeStackScreenProps<

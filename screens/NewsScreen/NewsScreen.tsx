@@ -76,38 +76,44 @@ export default function NewsScreen({ navigation, route }: NewsScreenProps) {
           <Text>Hiện tại không có tin tức nào.</Text>
         )}
         {newsList && newsList.length && (
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <FlatList
-              data={newsList}
-              onEndReached={() => setPage(page + 1)}
-              onEndReachedThreshold={0.5}
-              renderItem={({ item }) => {
-                return (
-                  <Pressable
-                    _pressed={{ backgroundColor: "#DAD9FF" }}
-                    p={4}
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={newsList}
+            onEndReached={() => setPage(page + 1)}
+            onEndReachedThreshold={0.5}
+            renderItem={({ item }) => {
+              return (
+                <Pressable
+                  _pressed={{ backgroundColor: "#DAD9FF" }}
+                  p={3}
+                  borderRadius={20}
+                  backgroundColor={appColor.background}
+                  alignItems="center"
+                  mb={4}
+                  onPress={() => {
+                    navigation.navigate("NewsDetail", { newsId: item.id });
+                  }}
+                >
+                  <Image
+                    minW="full"
+                    maxW="full"
+                    size="2xl"
+                    alignSelf="center"
                     borderRadius={20}
-                    backgroundColor={appColor.background}
-                    alignItems="center"
-                  >
-                    <Image
-                      alignSelf="center"
-                      borderRadius={20}
-                      source={
-                        helpers.checkImage(item.logo)
-                          ? { uri: item.logo }
-                          : require("../../assets/images/clinics/default_noti.png")
-                      }
-                      alt={item.title}
-                    />
-                    <Text mt={2} fontWeight="bold" color={appColor.textTitle}>
-                      {item.title}
-                    </Text>
-                  </Pressable>
-                );
-              }}
-            />
-          </ScrollView>
+                    source={
+                      helpers.checkImage(item.logo)
+                        ? { uri: item.logo }
+                        : require("../../assets/images/clinics/default_noti.png")
+                    }
+                    alt={item.clinicId}
+                  />
+                  <Text mt={2} fontWeight="bold" color={appColor.textTitle}>
+                    {item.title}
+                  </Text>
+                </Pressable>
+              );
+            }}
+          />
         )}
       </Box>
     </Box>

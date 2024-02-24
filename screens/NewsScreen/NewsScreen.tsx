@@ -11,21 +11,30 @@ import {
 
 import { NewsScreenProps } from "../../Navigator/NewsNavigator";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { newsServiceApi } from "../../services/news.service";
 import { INews } from "../../types/news.type";
 import ToastAlert from "../../components/Toast/Toast";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { appColor } from "../../theme";
 import { helpers } from "../../utils/helper";
+import { useDebounce } from "use-debounce";
+import { Searchbar } from "react-native-paper";
 
 export default function NewsScreen({ navigation, route }: NewsScreenProps) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newsList, setNewsList] = useState<INews[] | null>(null);
+  const [searchString, setSearchString] = useState<string>("");
+  const [debounced] = useDebounce(searchString, 500);
   const [page, setPage] = useState<number>(0);
   const getClinicNews = async (page: number) => {
-    const response = await newsServiceApi.getAllNews(undefined, true, 4, page);
+    const response = await newsServiceApi.getAllNews(
+      searchString,
+      true,
+      4,
+      page
+    );
     if (response.data) {
       {
         if (newsList !== null) {
@@ -49,13 +58,14 @@ export default function NewsScreen({ navigation, route }: NewsScreenProps) {
       });
     }
   };
-  useFocusEffect(
-    useCallback(() => {
-      setIsLoading(true);
-      getClinicNews(page);
-      setIsLoading(false);
-    }, [page])
-  );
+  const onChangeSearchString = (query: string) => {
+    setSearchString(query);
+  };
+  useEffect(() => {
+    setIsLoading(true);
+    getClinicNews(page);
+    setIsLoading(false);
+  }, [page, debounced]);
   return (
     <Box maxW="90%" minW="90%" mt="5%" maxH="95%" minH="95%" alignSelf="center">
       <Box
@@ -66,6 +76,19 @@ export default function NewsScreen({ navigation, route }: NewsScreenProps) {
         height="full"
         p={5}
       >
+        <Searchbar
+          style={{ height: 40, marginBottom: 15 }}
+          placeholder="Tìm kiếm"
+          onChangeText={onChangeSearchString}
+          value={searchString}
+          inputStyle={{
+            paddingBottom: 20,
+            paddingTop: 5,
+            fontSize: 15,
+            color: appColor.textTitle,
+          }}
+          placeholderTextColor={appColor.textSecondary}
+        />
         {!newsList && (
           <LoadingSpinner
             showLoading={isLoading}
@@ -84,6 +107,7 @@ export default function NewsScreen({ navigation, route }: NewsScreenProps) {
             renderItem={({ item }) => {
               return (
                 <Pressable
+                  key={item.createdAt}
                   _pressed={{ backgroundColor: "#DAD9FF" }}
                   p={3}
                   borderRadius={20}

@@ -6,6 +6,7 @@ import React from "react";
 import { NewsNavigatorProps } from "./TabNavigator";
 import NewsScreen from "../screens/NewsScreen/NewsScreen";
 import NewsDetailScreen from "../screens/NewsScreen/NewsDetailScreen";
+import { NavigationContainerRef } from "@react-navigation/native";
 
 export type NewsStackParamList = {
   News: undefined;
@@ -13,6 +14,9 @@ export type NewsStackParamList = {
     newsId: number;
   };
 };
+
+export const newsNavigationRef =
+  React.createRef<NavigationContainerRef<NewsStackParamList>>();
 
 export type NewsScreenProps = NativeStackScreenProps<
   NewsStackParamList,

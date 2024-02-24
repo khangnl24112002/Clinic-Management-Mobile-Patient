@@ -6,6 +6,8 @@ import {
   VStack,
   useToast,
   Image,
+  Pressable,
+  Avatar,
 } from "native-base";
 import { ClinicListProps } from "../../Navigator/ClinicNavigator";
 import { appColor } from "../../theme";
@@ -21,6 +23,7 @@ import { Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Searchbar } from "react-native-paper";
 import { useDebounce } from "use-debounce";
+import { helpers } from "../../utils/helper";
 
 export default function ClinicListScreen({
   navigation,
@@ -101,11 +104,19 @@ export default function ClinicListScreen({
             <VStack space={5}>
               {clinicList.map((clinicItem: IClinicInfo, index: any) => {
                 return (
-                  <VStack
+                  <Pressable
+                    onPress={() => {
+                      navigation.navigate("ClinicDetail", {
+                        clinicId: clinicItem.id,
+                      });
+                    }}
                     key={index}
                     backgroundColor="#DAD9FF"
                     borderRadius={15}
                     p={3}
+                    _pressed={{
+                      backgroundColor: "primary.100",
+                    }}
                   >
                     <Text
                       fontSize={18}
@@ -117,18 +128,16 @@ export default function ClinicListScreen({
                       {clinicItem.name}
                     </Text>
                     <HStack alignItems="center" space={2}>
-                      <Image
-                        flex={1}
+                      <Avatar
+                        bg="gray.200"
                         source={
-                          clinicItem.logo !== null && clinicItem.logo !== ""
+                          helpers.checkImage(clinicItem.logo)
                             ? { uri: clinicItem.logo }
                             : require("../../assets/images/clinics/default_image_clinic.png")
                         }
-                        size="sm"
-                        alt={clinicItem.id}
-                        borderRadius={10}
+                        size="lg"
                       />
-                      <VStack flex={3} space={2}>
+                      <VStack space={2} maxW="70%">
                         <HStack>
                           <Ionicons
                             name="location-outline"
@@ -162,7 +171,7 @@ export default function ClinicListScreen({
                         </HStack>
                       </VStack>
                     </HStack>
-                  </VStack>
+                  </Pressable>
                 );
               })}
             </VStack>

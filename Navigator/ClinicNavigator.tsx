@@ -4,10 +4,13 @@ import {
 } from "@react-navigation/native-stack";
 import { ClinicNavigatorProps } from "./TabNavigator";
 import ClinicListScreen from "../screens/ClinicScreen/ClinicListScreen";
+import ClinicDetailScreen from "../screens/ClinicScreen/ClinicDetailScreen";
 
 export type ClinicNavigatorParamList = {
   ClinicList: undefined;
-  ClinicDetail: undefined;
+  ClinicDetail: {
+    clinicId: string;
+  };
 };
 
 export type ClinicDetailProps = NativeStackScreenProps<
@@ -32,6 +35,14 @@ export default function ClinicNavigator({
       <ClinicStackNavigator.Screen
         name="ClinicList"
         component={ClinicListScreen}
+        options={{
+          headerShown: false,
+          title: "Phòng khám",
+        }}
+      />
+      <ClinicStackNavigator.Screen
+        name="ClinicDetail"
+        component={ClinicDetailScreen}
         options={{
           headerShown: false,
           title: "Phòng khám",

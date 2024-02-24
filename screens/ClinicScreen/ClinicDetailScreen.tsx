@@ -26,6 +26,7 @@ import { newsServiceApi } from "../../services/news.service";
 import { INews, INewsResponse } from "../../types/news.type";
 const { format } = require("number-currency-format");
 import { helpers } from "../../utils/helper";
+import { navigationRef } from "../../Navigator/TabNavigator";
 export default function ClinicDetailScreen({
   navigation,
   route,
@@ -217,10 +218,13 @@ export default function ClinicDetailScreen({
             >
               Mô tả
             </Text>
-            {clinicInfo.description !== "" &&
-              clinicInfo.description !== null && (
-                <HTMLView value={clinicInfo.description} />
-              )}
+            {clinicInfo.description !== "" && clinicInfo.description && (
+              <HTMLView value={clinicInfo.description} />
+            )}
+            {clinicInfo.description === "" ||
+              (!clinicInfo.description && (
+                <Text>Phòng khám chưa có mô tả.</Text>
+              ))}
           </Box>
           <Box borderBottomWidth={1} borderBottomColor="#EDEDF2" mb={3} pb={3}>
             <Text
@@ -366,6 +370,14 @@ export default function ClinicDetailScreen({
                       _pressed={{ backgroundColor: appColor.background }}
                       p={3}
                       borderRadius={20}
+                      onPress={() => {
+                        navigationRef.current?.navigate("NewsNavigator", {
+                          screen: "NewsDetail",
+                          params: {
+                            newsId: newItem.id,
+                          },
+                        });
+                      }}
                     >
                       <VStack>
                         <Box>
@@ -378,7 +390,7 @@ export default function ClinicDetailScreen({
                                   ? { uri: newItem.logo }
                                   : require("../../assets/images/clinics/default_noti.png")
                               }
-                              alt="Alternate Text"
+                              alt={newItem.title}
                             />
                             <VStack w="70%">
                               <Text>{newItem.title}</Text>

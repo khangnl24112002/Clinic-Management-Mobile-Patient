@@ -38,7 +38,7 @@ export type RootNativeTabParamList = {
   ProfileNavigator: {
     setLogout: () => void;
   };
-  NewsNavigator: undefined;
+  NewsNavigator: { screen: any; params: any };
   MedicalRecordNavigator: undefined;
   ClinicNavigator: undefined;
   LandingPageScreen: {

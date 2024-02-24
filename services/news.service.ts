@@ -18,4 +18,22 @@ export const newsServiceApi = {
       },
     });
   },
+  getAllNews(
+    title?: string,
+    isShow?: boolean,
+    pageSize?: number,
+    pageIndex?: number
+  ): Promise<IApiResponse<INewsResponse>> {
+    return axiosClient.get(`/news`, {
+      params: {
+        title,
+        isShow,
+        pageSize,
+        pageIndex,
+      },
+    });
+  },
+  getNewsDetail(newsId: number): Promise<IApiResponse<INews>> {
+    return axiosClient.get(`/news/${newsId}`);
+  },
 };

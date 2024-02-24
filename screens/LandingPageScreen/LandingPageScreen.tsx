@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import { ClinicSelector, setPatient, userInfoSelector } from "../../store";
 import Carousel from "react-native-reanimated-carousel";
 import { ActivityIndicator } from "react-native-paper";
+import ChooseClinicModal from "../AppointmentScreen/ChooseClinicModal";
 
 export default function LandingPageScreen({
   navigation,
@@ -52,7 +53,7 @@ export default function LandingPageScreen({
   const { setLogin } = route.params;
   const handlePressPatientRecord = () => {
     if (userInfo && patientInfo) {
-      navigation.navigate("MedicalRecordNavigator", { patient: patientInfo });
+      navigation.navigate("MedicalRecordNavigator");
     } else {
       navigation.navigate("AuthenticationNavigator", { setLogin });
     }
@@ -129,6 +130,7 @@ export default function LandingPageScreen({
           _text={{ fontWeight: "bold", fontSize: 18 }}
           alignSelf="center"
           mt={-12}
+          onPress={handlePressAppointment}
         >
           ĐẶT LỊCH KHÁM
         </Button>

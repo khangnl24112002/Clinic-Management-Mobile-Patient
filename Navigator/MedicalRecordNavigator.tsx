@@ -12,7 +12,7 @@ import { useAppSelector } from "../hooks";
 import { ClinicSelector, userInfoSelector } from "../store";
 
 export type MedicalRecordNavigatorParamList = {
-  MedicalRecord: { patient: IPatient };
+  MedicalRecord: undefined;
   MedicalRecordDetail: { record: IMedicalRecord };
 };
 
@@ -33,7 +33,7 @@ export default function MedicalRecordNavigator({
   navigation,
   route,
 }: MedicalRecordNavigatorProps) {
-  const patientInfo = route.params.patient;
+
   const clinic = useAppSelector(ClinicSelector);
   const userInfo = useAppSelector(userInfoSelector);
 
@@ -42,7 +42,6 @@ export default function MedicalRecordNavigator({
       <MedicalRecordStackNavigator.Screen
         name="MedicalRecord"
         component={MedicalRecord}
-        initialParams={{ patient: patientInfo }}
         options={{
           headerShown: false,
           title: "Hồ sơ bệnh án",

@@ -30,6 +30,7 @@ import LandingPageScreen from "../screens/LandingPageScreen/LandingPageScreen";
 import AppointmentNavigator from "./AppointmentNavigator";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { IPatient, IMedicalRecord } from "../types";
 export type RootNativeTabParamList = {
   AuthenticationNavigator: {
     setLogin: (user: IUserInfo | null, token: string | null) => void | any;
@@ -38,7 +39,7 @@ export type RootNativeTabParamList = {
     setLogout: () => void;
   };
   NewsNavigator: undefined;
-  MedicalRecordNavigator: undefined;
+  MedicalRecordNavigator: {patient: IPatient};
   ClinicNavigator: undefined;
   LandingPageScreen: {
     setLogin: (user: IUserInfo | null, token: string | null) => void | any;

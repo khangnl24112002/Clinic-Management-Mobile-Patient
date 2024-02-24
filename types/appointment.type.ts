@@ -64,6 +64,7 @@ export interface IAppointmentQueryParams {
   patientId?: number;
   date?: string;
   status?: string;
+  puid?: string;
 }
 
 export interface INewAppointmentPayload {

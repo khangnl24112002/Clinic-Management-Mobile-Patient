@@ -24,6 +24,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Searchbar } from "react-native-paper";
 import { useDebounce } from "use-debounce";
 import { helpers } from "../../utils/helper";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 export default function ClinicListScreen({
   navigation,
@@ -33,7 +34,8 @@ export default function ClinicListScreen({
   const user = useAppSelector(userInfoSelector);
   const [searchString, setSearchString] = useState<string>("");
   const [debounced] = useDebounce(searchString, 500);
-  const [clinicList, setClinicList] = useState<IClinicInfo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [clinicList, setClinicList] = useState<IClinicInfo[] | null>(null);
   const getClinic = async () => {
     try {
       const response = await clinicService.getAllClinicForPatient(searchString);
@@ -54,16 +56,10 @@ export default function ClinicListScreen({
       });
     }
   };
-  const [showLoading, setShowLoading] = useState<boolean>(false);
-  useFocusEffect(
-    useCallback(() => {
-      setShowLoading(true);
-      getClinic();
-      setShowLoading(false);
-    }, [])
-  );
   useEffect(() => {
+    setIsLoading(true);
     getClinic();
+    setIsLoading(false);
   }, [debounced]);
   const onChangeSearchString = (query: string) => {
     setSearchString(query);
@@ -78,7 +74,7 @@ export default function ClinicListScreen({
       minH="95%"
       alignSelf="center"
     >
-      {clinicList.length ? (
+      {clinicList && clinicList.length ? (
         <Box
           alignSelf="center"
           backgroundColor={appColor.white}
@@ -130,11 +126,7 @@ export default function ClinicListScreen({
                     <HStack alignItems="center" space={2}>
                       <Avatar
                         bg="gray.200"
-                        source={
-                          helpers.checkImage(clinicItem.logo)
-                            ? { uri: clinicItem.logo }
-                            : require("../../assets/images/clinics/default_image_clinic.png")
-                        }
+                        source={{ uri: clinicItem.logo }}
                         size="lg"
                       />
                       <VStack space={2} maxW="70%">
@@ -177,7 +169,7 @@ export default function ClinicListScreen({
             </VStack>
           </ScrollView>
         </Box>
-      ) : (
+      ) : clinicList?.length == 0 ? (
         <Box
           alignSelf="center"
           backgroundColor={appColor.white}
@@ -187,6 +179,20 @@ export default function ClinicListScreen({
           p={5}
         >
           <Text>Hiện tại chưa có phòng khám nào</Text>
+        </Box>
+      ) : (
+        <Box
+          alignSelf="center"
+          backgroundColor={appColor.white}
+          borderRadius={20}
+          width="full"
+          height="full"
+          p={5}
+        >
+          <LoadingSpinner
+            showLoading={isLoading}
+            setShowLoading={setIsLoading}
+          />
         </Box>
       )}
     </VStack>

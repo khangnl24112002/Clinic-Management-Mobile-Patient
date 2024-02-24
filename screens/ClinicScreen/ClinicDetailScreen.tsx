@@ -217,10 +217,13 @@ export default function ClinicDetailScreen({
             >
               Mô tả
             </Text>
-            {clinicInfo.description !== "" &&
-              clinicInfo.description !== null && (
-                <HTMLView value={clinicInfo.description} />
-              )}
+            {clinicInfo.description !== "" && clinicInfo.description && (
+              <HTMLView value={clinicInfo.description} />
+            )}
+            {clinicInfo.description === "" ||
+              (!clinicInfo.description && (
+                <Text>Phòng khám chưa có mô tả.</Text>
+              ))}
           </Box>
           <Box borderBottomWidth={1} borderBottomColor="#EDEDF2" mb={3} pb={3}>
             <Text

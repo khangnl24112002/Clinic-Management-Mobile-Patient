@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   NativeStackScreenProps,
   createNativeStackNavigator,
@@ -7,12 +7,12 @@ import { MedicalRecordNavigatorProps } from "./TabNavigator";
 import MedicalRecord from "../screens/MedicalRecordSeeen/MedicalRecord";
 import MedicalRecordDetail from "../screens/MedicalRecordSeeen/MedicalRecordDetail";
 import { IPatient, IMedicalRecord } from "../types";
-import { patientApi } from '../services';
+import { patientApi } from "../services";
 import { useAppSelector } from "../hooks";
 import { ClinicSelector, userInfoSelector } from "../store";
 
 export type MedicalRecordNavigatorParamList = {
-  MedicalRecord: {patient: IPatient};
+  MedicalRecord: { patient: IPatient };
   MedicalRecordDetail: { record: IMedicalRecord };
 };
 
@@ -24,7 +24,7 @@ export type MedicalRecordProps = NativeStackScreenProps<
 export type MedicalRecordDetailProps = NativeStackScreenProps<
   MedicalRecordNavigatorParamList,
   "MedicalRecordDetail"
->
+>;
 
 const MedicalRecordStackNavigator =
   createNativeStackNavigator<MedicalRecordNavigatorParamList>();
@@ -42,7 +42,7 @@ export default function MedicalRecordNavigator({
       <MedicalRecordStackNavigator.Screen
         name="MedicalRecord"
         component={MedicalRecord}
-        initialParams={{patient: patientInfo}}
+        initialParams={{ patient: patientInfo }}
         options={{
           headerShown: false,
           title: "Hồ sơ bệnh án",

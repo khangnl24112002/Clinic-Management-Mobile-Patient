@@ -21,6 +21,11 @@ export const clinicService = {
       },
     });
   },
+  async getAllClinicForPatient(
+    name: any
+  ): Promise<IApiResponse<IClinicInfo[]>> {
+    return axiosClient.get(`/clinics?name=${name}`);
+  },
   async getAllClinic(
     id: any,
     moduleId: any

@@ -44,4 +44,10 @@ export const helpers = {
       return "file";
     }
   },
+  checkImage: (url: string | any) => {
+    if (!url) return false;
+    if (url.startsWith("https://")) {
+      return true;
+    } else return false;
+  },
 };

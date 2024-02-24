@@ -7,35 +7,40 @@ import {
   Pressable,
   Text,
   VStack,
+  View,
 } from "native-base";
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import { LandingPageScreenProps } from "../../Navigator/TabNavigator";
-import { SafeAreaView } from "react-native";
+import { Dimensions, SafeAreaView } from "react-native";
 import { appColor } from "../../theme";
 import { IPatient, IMedicalRecord } from "../../types";
-import { patientApi } from '../../services';
+import { patientApi } from "../../services";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { ClinicSelector, setPatient, userInfoSelector } from "../../store";
+import Carousel from "react-native-reanimated-carousel";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function LandingPageScreen({
   navigation,
   route,
 }: LandingPageScreenProps) {
-
   const dispatch = useAppDispatch();
   const clinic = useAppSelector(ClinicSelector);
   const userInfo = useAppSelector(userInfoSelector);
-  
+
   const [patientInfo, setPatientInfo] = useState<IPatient>();
 
   const getPatientInfo = async () => {
     try {
-      const response = await patientApi.getPatients({ clinicId: clinic?.id, userId: userInfo?.id });
-        console.log('response: ', response);
-        if (response.status && response.data) {
-            setPatientInfo(response.data[0]);
-            dispatch(setPatient(response.data[0]))
-        }
+      const response = await patientApi.getPatients({
+        clinicId: clinic?.id,
+        userId: userInfo?.id,
+      });
+      console.log("response: ", response);
+      if (response.status && response.data) {
+        setPatientInfo(response.data[0]);
+        dispatch(setPatient(response.data[0]));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -47,13 +52,13 @@ export default function LandingPageScreen({
   const { setLogin } = route.params;
   const handlePressPatientRecord = () => {
     if (userInfo && patientInfo) {
-      navigation.navigate("MedicalRecordNavigator", { patient: patientInfo});
+      navigation.navigate("MedicalRecordNavigator", { patient: patientInfo });
     } else {
       navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const handlePressNews = () => {
-    navigation.navigate("NewsNavigator");
+    navigation.navigate("NewsNavigator", { screen: "News", params: null });
   };
   const handlePressAppointment = () => {
     if (userInfo) {
@@ -65,25 +70,68 @@ export default function LandingPageScreen({
   const handlePressClinic = () => {
     navigation.navigate("ClinicNavigator");
   };
+  const carousel = [
+    "../../assets/images/carousel/carousel1.jpg",
+    "../../assets/images/carousel/carousel2.jpg",
+    "../../assets/images/carousel/carousel3.jpg",
+    "../../assets/images/carousel/carousel4.jpg",
+  ];
+  const width = Dimensions.get("window").width;
   return (
     <SafeAreaView>
       <Box minH="50%" maxH="50%" justifyContent="center" alignSelf="center">
-        <Image
-          source={require("../../assets/images/common/logo.png")}
-          borderRadius={100}
-          size="200"
-          alt="logo_img"
+        <Carousel
+          width={width}
+          height={(width * 3) / 4}
+          loop
+          mode="parallax"
+          autoPlay={true}
+          data={carousel}
+          scrollAnimationDuration={1000}
+          // onSnapToItem={(index) => console.log("current index:", index)}
+          renderItem={(item) => (
+            <View
+              style={{
+                flex: 1,
+              }}
+            >
+              {/* <Image source={require(item.item)} flex={1} /> */}
+              {item.index == 0 && (
+                <Image
+                  source={require("../../assets/images/carousel/carousel1.jpg")}
+                  flex={1}
+                />
+              )}
+              {item.index == 1 && (
+                <Image
+                  source={require("../../assets/images/carousel/carousel2.jpg")}
+                  flex={1}
+                />
+              )}
+              {item.index == 2 && (
+                <Image
+                  source={require("../../assets/images/carousel/carousel3.jpg")}
+                  flex={1}
+                />
+              )}
+              {item.index == 3 && (
+                <Image
+                  source={require("../../assets/images/carousel/carousel4.jpg")}
+                  flex={1}
+                />
+              )}
+            </View>
+          )}
         />
-        <Heading
-          fontSize={30}
-          fontFamily="heading"
-          fontWeight="bold"
-          color="primary.300"
+
+        <Button
+          p={4}
+          _text={{ fontWeight: "bold", fontSize: 18 }}
           alignSelf="center"
+          mt={-12}
         >
-          CLINUS
-        </Heading>
-        <Button>ĐẶT LỊCH KHÁM</Button>
+          ĐẶT LỊCH KHÁM
+        </Button>
       </Box>
       <Box minH="50%" maxH="50%" alignSelf="center">
         <VStack w="100%" h="100%" alignItems="center" flex={1}>

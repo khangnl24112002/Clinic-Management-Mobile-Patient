@@ -25,8 +25,10 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import messaging from "@react-native-firebase/messaging";
 import { notificationService } from "../../services";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import UpdateUserInfoScreenModal from "./UpdateProfileScreenModal";
 
 const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
+  const [isOpenUpdateModal, setIsOpenUpdateModal] = useState<boolean>(false);
   const { setLogout } = route.params;
   const userInfo = useAppSelector(userInfoSelector);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -34,7 +36,7 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
   const dispatch = useAppDispatch();
 
   const handleChangeUserInfo = () => {
-    navigation.navigate("UpdateUserInfo");
+    setIsOpenUpdateModal(true);
   };
 
   const handleLogout = async () => {
@@ -79,6 +81,12 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
           setShowModal={setShowModal}
         />
       )}
+      <UpdateUserInfoScreenModal
+        isOpen={isOpenUpdateModal}
+        onClose={() => {
+          setIsOpenUpdateModal(false);
+        }}
+      />
       <Box
         width="full"
         alignItems="center"
@@ -119,7 +127,9 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
             <Text fontWeight="bold" color={appColor.textSecondary}>
               Địa chỉ
             </Text>
-            <Text color={appColor.textSecondary}>{userInfo?.address}</Text>
+            <Text color={appColor.textSecondary}>
+              {userInfo?.address ? userInfo.address : "Chưa cập nhật"}
+            </Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
             <Text fontWeight="bold" color={appColor.textSecondary}>
@@ -130,7 +140,7 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
                 ? "Nam"
                 : userInfo?.gender === 0
                 ? "Nữ"
-                : ""}
+                : "Chưa cập nhật"}
             </Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
@@ -144,20 +154,31 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
               Ngày sinh
             </Text>
             <Text color={appColor.textSecondary}>
-              {dayjs(userInfo?.birthday).format("DD/MM/YYYY")}
+              {userInfo?.birthday
+                ? dayjs(userInfo?.birthday).format("DD/MM/YYYY")
+                : "Chưa cập nhật"}
             </Text>
           </HStack>
           <HStack justifyContent="space-between" width="full">
             <Text fontWeight="bold" color={appColor.textSecondary}>
               Số điện thoại
             </Text>
-            <Text color={appColor.textSecondary}>{userInfo?.phone}</Text>
+            <Text color={appColor.textSecondary}>
+              {userInfo?.phone ? userInfo.phone : "Chưa cập nhật"}
+            </Text>
           </HStack>
           <HStack width="full" space={5}>
             <Button flex={1} onPress={handleChangeUserInfo}>
               Cập nhật
             </Button>
-            <Button flex={1} onPress={handleLogout}>
+            <Button
+              backgroundColor="primary.300"
+              _pressed={{
+                backgroundColor: "primary.400",
+              }}
+              flex={1}
+              onPress={handleLogout}
+            >
               Đăng xuất
             </Button>
           </HStack>

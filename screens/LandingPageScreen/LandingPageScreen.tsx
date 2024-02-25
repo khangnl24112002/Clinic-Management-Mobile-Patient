@@ -101,24 +101,28 @@ export default function LandingPageScreen({
                 <Image
                   source={require("../../assets/images/carousel/carousel1.jpg")}
                   flex={1}
+                  borderRadius={20}
                 />
               )}
               {item.index == 1 && (
                 <Image
                   source={require("../../assets/images/carousel/carousel2.jpg")}
                   flex={1}
+                  borderRadius={20}
                 />
               )}
               {item.index == 2 && (
                 <Image
                   source={require("../../assets/images/carousel/carousel3.jpg")}
                   flex={1}
+                  borderRadius={20}
                 />
               )}
               {item.index == 3 && (
                 <Image
                   source={require("../../assets/images/carousel/carousel4.jpg")}
                   flex={1}
+                  borderRadius={20}
                 />
               )}
             </View>
@@ -143,18 +147,23 @@ export default function LandingPageScreen({
               p={3}
               alignItems="center"
               justifyContent="center"
-              _pressed={{ backgroundColor: "primary.100" }}
+              _pressed={{ backgroundColor: "primary.50" }}
               borderWidth={1}
               borderColor="gray.200"
               onPress={handlePressPatientRecord}
             >
               <Image
                 source={require("../../assets/images/common/patient_record.png")}
-                size="100"
+                size="60"
                 alt="logo_img"
               />
-              <Text fontWeight="bold" color={appColor.textTitle} mt={4}>
-                Hồ sơ khám bệnh
+              <Text
+                fontSize={16}
+                fontWeight="bold"
+                color={appColor.textTitle}
+                mt={2}
+              >
+                Hồ sơ
               </Text>
             </Pressable>
             <Pressable
@@ -162,17 +171,22 @@ export default function LandingPageScreen({
               p={3}
               alignItems="center"
               justifyContent="center"
-              _pressed={{ backgroundColor: "primary.100" }}
+              _pressed={{ backgroundColor: "primary.50" }}
               borderWidth={1}
               borderColor="gray.200"
               onPress={handlePressNews}
             >
               <Image
                 source={require("../../assets/images/common/news.png")}
-                size="100"
+                size="60"
                 alt="logo_img"
               />
-              <Text fontWeight="bold" color={appColor.textTitle} mt={4}>
+              <Text
+                fontSize={16}
+                fontWeight="bold"
+                color={appColor.textTitle}
+                mt={2}
+              >
                 Tin tức
               </Text>
             </Pressable>
@@ -184,16 +198,21 @@ export default function LandingPageScreen({
               p={3}
               alignItems="center"
               justifyContent="center"
-              _pressed={{ backgroundColor: "primary.100" }}
+              _pressed={{ backgroundColor: "primary.50" }}
               borderColor="gray.200"
               onPress={handlePressAppointment}
             >
               <Image
                 source={require("../../assets/images/common/appointment.png")}
-                size="100"
+                size="60"
                 alt="logo_img"
               />
-              <Text fontWeight="bold" color={appColor.textTitle} mt={4}>
+              <Text
+                fontSize={16}
+                fontWeight="bold"
+                color={appColor.textTitle}
+                mt={2}
+              >
                 Lịch hẹn
               </Text>
             </Pressable>
@@ -203,16 +222,21 @@ export default function LandingPageScreen({
               p={3}
               alignItems="center"
               justifyContent="center"
-              _pressed={{ backgroundColor: "primary.100" }}
+              _pressed={{ backgroundColor: "primary.50" }}
               borderColor="gray.200"
               onPress={handlePressClinic}
             >
               <Image
                 source={require("../../assets/images/common/clinic.png")}
-                size="100"
+                size="60"
                 alt="logo_img"
               />
-              <Text fontWeight="bold" color={appColor.textTitle} mt={4}>
+              <Text
+                fontSize={16}
+                fontWeight="bold"
+                color={appColor.textTitle}
+                mt={2}
+              >
                 Phòng khám
               </Text>
             </Pressable>

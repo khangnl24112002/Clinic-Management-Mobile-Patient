@@ -1,5 +1,5 @@
 import React from "react";
-import { NotificationNavigatorProps } from "./UserNavigator";
+import { NotificationNavigatorProps } from "./TabNavigator";
 import {
   NativeStackScreenProps,
   createNativeStackNavigator,

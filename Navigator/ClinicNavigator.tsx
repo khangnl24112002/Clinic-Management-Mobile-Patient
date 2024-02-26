@@ -5,11 +5,15 @@ import {
 import { ClinicNavigatorProps } from "./TabNavigator";
 import ClinicListScreen from "../screens/ClinicScreen/ClinicListScreen";
 import ClinicDetailScreen from "../screens/ClinicScreen/ClinicDetailScreen";
+import DoctorInfoScreen from "../screens/ClinicScreen/DoctorInfoScreen";
 
 export type ClinicNavigatorParamList = {
   ClinicList: undefined;
   ClinicDetail: {
     clinicId: string;
+  };
+  DoctorInfo: {
+    staffId: number;
   };
 };
 
@@ -21,6 +25,11 @@ export type ClinicDetailProps = NativeStackScreenProps<
 export type ClinicListProps = NativeStackScreenProps<
   ClinicNavigatorParamList,
   "ClinicList"
+>;
+
+export type DoctorInfoProps = NativeStackScreenProps<
+  ClinicNavigatorParamList,
+  "DoctorInfo"
 >;
 
 const ClinicStackNavigator =
@@ -37,7 +46,6 @@ export default function ClinicNavigator({
         component={ClinicListScreen}
         options={{
           headerShown: false,
-          title: "Phòng khám",
         }}
       />
       <ClinicStackNavigator.Screen
@@ -45,7 +53,13 @@ export default function ClinicNavigator({
         component={ClinicDetailScreen}
         options={{
           headerShown: false,
-          title: "Phòng khám",
+        }}
+      />
+      <ClinicStackNavigator.Screen
+        name="DoctorInfo"
+        component={DoctorInfoScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </ClinicStackNavigator.Navigator>

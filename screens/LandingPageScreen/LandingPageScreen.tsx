@@ -2,29 +2,29 @@ import {
   Box,
   Button,
   HStack,
-  Heading,
   Image,
   Pressable,
   Text,
   VStack,
   View,
+  useToast,
 } from "native-base";
 import { useState, useEffect } from "react";
 import { LandingPageScreenProps } from "../../Navigator/TabNavigator";
 import { Dimensions, SafeAreaView } from "react-native";
 import { appColor } from "../../theme";
-import { IPatient, IMedicalRecord } from "../../types";
+import { IPatient } from "../../types";
 import { patientApi } from "../../services";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { ClinicSelector, setPatient, userInfoSelector } from "../../store";
 import Carousel from "react-native-reanimated-carousel";
-import { ActivityIndicator } from "react-native-paper";
-import ChooseClinicModal from "../AppointmentScreen/ChooseClinicModal";
+import ToastAlert from "../../components/Toast/Toast";
 
 export default function LandingPageScreen({
   navigation,
   route,
 }: LandingPageScreenProps) {
+  const toast = useToast();
   const dispatch = useAppDispatch();
   const clinic = useAppSelector(ClinicSelector);
   const userInfo = useAppSelector(userInfoSelector);
@@ -55,7 +55,18 @@ export default function LandingPageScreen({
     if (userInfo && patientInfo) {
       navigation.navigate("MedicalRecordNavigator");
     } else {
-      navigation.navigate("AuthenticationNavigator", { setLogin });
+      toast.show({
+        render: () => {
+          return (
+            <ToastAlert
+              title="Thông báo"
+              description="Vui lòng thực hiện đăng nhập để sử dụng tính năng này!"
+              status="warning"
+            />
+          );
+        },
+      });
+      // navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const handlePressNews = () => {
@@ -65,11 +76,58 @@ export default function LandingPageScreen({
     if (userInfo) {
       navigation.navigate("AppointmentNavigator");
     } else {
-      navigation.navigate("AuthenticationNavigator", { setLogin });
+      toast.show({
+        render: () => {
+          return (
+            <ToastAlert
+              title="Thông báo"
+              description="Vui lòng thực hiện đăng nhập để sử dụng tính năng này!"
+              status="warning"
+            />
+          );
+        },
+      });
+      // navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const handlePressClinic = () => {
     navigation.navigate("ClinicNavigator");
+  };
+  const handlePressChat = () => {
+    if (userInfo) {
+      navigation.navigate("ChattingNavigator", { params: null, screen: null });
+    } else {
+      toast.show({
+        render: () => {
+          return (
+            <ToastAlert
+              title="Thông báo"
+              description="Vui lòng thực hiện đăng nhập để sử dụng tính năng này!"
+              status="warning"
+            />
+          );
+        },
+      });
+      // navigation.navigate("AuthenticationNavigator", { setLogin });
+    }
+  };
+  const handlePressNotification = () => {
+    if (userInfo) {
+      navigation.navigate("NotificationNavigator");
+    } else {
+      toast.show({
+        render: () => {
+          return (
+            <ToastAlert
+              title="Thông báo"
+              description="Vui lòng thực hiện đăng nhập để sử dụng tính năng này!"
+              status="warning"
+            />
+          );
+        },
+      });
+      // navigation.navigate("AuthenticationNavigator", { setLogin });
+    }
   };
   const carousel = [
     "../../assets/images/carousel/carousel1.jpg",
@@ -78,12 +136,16 @@ export default function LandingPageScreen({
     "../../assets/images/carousel/carousel4.jpg",
   ];
   const width = Dimensions.get("window").width;
+  const height = Dimensions.get("window").height;
   return (
     <SafeAreaView>
-      <Box minH="50%" maxH="50%" justifyContent="center" alignSelf="center">
+      <Box minH="60%" maxH="60%" justifyContent="center" alignSelf="center">
         <Carousel
+          style={{
+            marginTop: 20,
+          }}
           width={width}
-          height={(width * 3) / 4}
+          height={(height * 2) / 4}
           loop
           mode="parallax"
           autoPlay={true}
@@ -96,7 +158,6 @@ export default function LandingPageScreen({
                 flex: 1,
               }}
             >
-              {/* <Image source={require(item.item)} flex={1} /> */}
               {item.index == 0 && (
                 <Image
                   source={require("../../assets/images/carousel/carousel1.jpg")}
@@ -128,118 +189,182 @@ export default function LandingPageScreen({
             </View>
           )}
         />
-
         <Button
           p={4}
-          _text={{ fontWeight: "bold", fontSize: 18 }}
+          _text={{ fontWeight: "bold", fontSize: 22 }}
           alignSelf="center"
-          mt={-12}
           onPress={handlePressAppointment}
         >
           ĐẶT LỊCH KHÁM
         </Button>
       </Box>
-      <Box minH="50%" maxH="50%" alignSelf="center">
+      <Box minH="40%" maxH="40%" alignSelf="center">
         <VStack w="100%" h="100%" alignItems="center" flex={1}>
           <HStack flex={1}>
-            <Pressable
-              flex={1}
-              p={3}
-              alignItems="center"
-              justifyContent="center"
-              _pressed={{ backgroundColor: "primary.50" }}
-              borderWidth={1}
-              borderColor="gray.200"
-              onPress={handlePressPatientRecord}
-            >
-              <Image
-                source={require("../../assets/images/common/patient_record.png")}
-                size="60"
-                alt="logo_img"
-              />
-              <Text
-                fontSize={16}
-                fontWeight="bold"
-                color={appColor.textTitle}
-                mt={2}
+            <Box alignItems="center" justifyContent="flex-end" flex={1}>
+              <Pressable
+                _pressed={{ backgroundColor: "primary.50" }}
+                onPress={handlePressPatientRecord}
+                p={3}
+                borderRadius={20}
+                backgroundColor="#fff"
+                height={100}
+                w={100}
               >
-                Hồ sơ
-              </Text>
-            </Pressable>
-            <Pressable
-              flex={1}
-              p={3}
-              alignItems="center"
-              justifyContent="center"
-              _pressed={{ backgroundColor: "primary.50" }}
-              borderWidth={1}
-              borderColor="gray.200"
-              onPress={handlePressNews}
-            >
-              <Image
-                source={require("../../assets/images/common/news.png")}
-                size="60"
-                alt="logo_img"
-              />
-              <Text
-                fontSize={16}
-                fontWeight="bold"
-                color={appColor.textTitle}
-                mt={2}
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Image
+                    source={require("../../assets/images/common/patient_record.png")}
+                    size="60"
+                    alt="logo_img"
+                  />
+                  <Text
+                    fontSize={12}
+                    fontWeight="bold"
+                    color={appColor.textTitle}
+                    alignSelf="center"
+                  >
+                    Hồ sơ
+                  </Text>
+                </Box>
+              </Pressable>
+            </Box>
+            <Box alignItems="center" justifyContent="flex-end" flex={1}>
+              <Pressable
+                _pressed={{ backgroundColor: "primary.50" }}
+                onPress={handlePressAppointment}
+                p={3}
+                borderRadius={20}
+                backgroundColor="#fff"
+                height={100}
+                w={100}
               >
-                Tin tức
-              </Text>
-            </Pressable>
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Image
+                    source={require("../../assets/images/common/appointment.png")}
+                    size="60"
+                    alt="logo_img"
+                  />
+                  <Text
+                    fontSize={12}
+                    fontWeight="bold"
+                    color={appColor.textTitle}
+                    alignSelf="center"
+                  >
+                    Lịch hẹn
+                  </Text>
+                </Box>
+              </Pressable>
+            </Box>
+            <Box alignItems="center" justifyContent="flex-end" flex={1}>
+              <Pressable
+                _pressed={{ backgroundColor: "primary.50" }}
+                onPress={handlePressClinic}
+                p={3}
+                borderRadius={20}
+                backgroundColor="#fff"
+                height={100}
+                w={100}
+              >
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Image
+                    source={require("../../assets/images/common/clinic.png")}
+                    size="60"
+                    alt="logo_img"
+                  />
+                  <Text
+                    fontSize={12}
+                    fontWeight="bold"
+                    color={appColor.textTitle}
+                    alignSelf="center"
+                  >
+                    Phòng khám
+                  </Text>
+                </Box>
+              </Pressable>
+            </Box>
           </HStack>
-          <HStack flex={1} w="full" justifyContent="space-evenly">
-            <Pressable
-              flex={1}
-              borderWidth={1}
-              p={3}
-              alignItems="center"
-              justifyContent="center"
-              _pressed={{ backgroundColor: "primary.50" }}
-              borderColor="gray.200"
-              onPress={handlePressAppointment}
-            >
-              <Image
-                source={require("../../assets/images/common/appointment.png")}
-                size="60"
-                alt="logo_img"
-              />
-              <Text
-                fontSize={16}
-                fontWeight="bold"
-                color={appColor.textTitle}
-                mt={2}
+          <HStack flex={1}>
+            <Box alignItems="center" justifyContent="center" flex={1}>
+              <Pressable
+                _pressed={{ backgroundColor: "primary.50" }}
+                onPress={handlePressNews}
+                p={3}
+                borderRadius={20}
+                backgroundColor="#fff"
+                height={100}
+                w={100}
               >
-                Lịch hẹn
-              </Text>
-            </Pressable>
-            <Pressable
-              flex={1}
-              borderWidth={1}
-              p={3}
-              alignItems="center"
-              justifyContent="center"
-              _pressed={{ backgroundColor: "primary.50" }}
-              borderColor="gray.200"
-              onPress={handlePressClinic}
-            >
-              <Image
-                source={require("../../assets/images/common/clinic.png")}
-                size="60"
-                alt="logo_img"
-              />
-              <Text
-                fontSize={16}
-                fontWeight="bold"
-                color={appColor.textTitle}
-                mt={2}
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Image
+                    source={require("../../assets/images/common/news.png")}
+                    size="60"
+                    alt="logo_img"
+                  />
+                  <Text
+                    fontSize={12}
+                    fontWeight="bold"
+                    color={appColor.textTitle}
+                    alignSelf="center"
+                  >
+                    Tin tức
+                  </Text>
+                </Box>
+              </Pressable>
+            </Box>
+            <Box alignItems="center" justifyContent="center" flex={1}>
+              <Pressable
+                _pressed={{ backgroundColor: "primary.50" }}
+                onPress={handlePressChat}
+                p={3}
+                borderRadius={20}
+                backgroundColor="#fff"
+                height={100}
+                w={100}
               >
-                Phòng khám
-              </Text>
-            </Pressable>
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Image
+                    source={require("../../assets/images/common/chat.png")}
+                    size="60"
+                    alt="logo_img"
+                  />
+                  <Text
+                    fontSize={12}
+                    fontWeight="bold"
+                    color={appColor.textTitle}
+                    alignSelf="center"
+                  >
+                    Nhắn tin
+                  </Text>
+                </Box>
+              </Pressable>
+            </Box>
+            <Box alignItems="center" justifyContent="center" flex={1}>
+              <Pressable
+                _pressed={{ backgroundColor: "primary.50" }}
+                onPress={handlePressNotification}
+                p={3}
+                borderRadius={20}
+                backgroundColor="#fff"
+                height={100}
+                w={100}
+              >
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Image
+                    source={require("../../assets/images/common/notification.png")}
+                    size="60"
+                    alt="logo_img"
+                  />
+                  <Text
+                    fontSize={12}
+                    fontWeight="bold"
+                    color={appColor.textTitle}
+                    alignSelf="center"
+                  >
+                    Thông báo
+                  </Text>
+                </Box>
+              </Pressable>
+            </Box>
           </HStack>
         </VStack>
       </Box>

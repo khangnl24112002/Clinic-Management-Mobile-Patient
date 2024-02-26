@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useToast } from 'native-base'
+import { useToast } from "native-base";
 import { useAppSelector } from "../../hooks";
 import { ClinicSelector, PatientSelector, userInfoSelector } from "../../store";
 import SelectDropdown from "react-native-select-dropdown";
@@ -20,16 +20,19 @@ import { AppointmentScreenProps } from "../../Navigator";
 import Timeline from "react-native-timeline-flatlist";
 import moment from "moment";
 import { CalendarList } from "react-native-calendars";
-import { IAppointment, IClinicInfo, IUpdateAppointmentPayload } from "../../types";
+import {
+  IAppointment,
+  IClinicInfo,
+  IUpdateAppointmentPayload,
+} from "../../types";
 import { APPOINTMENT_STATUS } from "../../enums";
-import { appointmentApi, staffApi } from '../../services'
+import { appointmentApi, staffApi } from "../../services";
 import ToastAlert from "../../components/Toast/Toast";
 import Task from "./Task";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from '@react-navigation/native';
-import ChooseClinicModal from './ChooseClinicModal'
-
+import { useFocusEffect } from "@react-navigation/native";
+import ChooseClinicModal from "./ChooseClinicModal";
 
 type TimelineEventsState = {
   time: string;
@@ -49,14 +52,14 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     )}`
   );
   //const [todoList, setTodoList] = useState<Array<IAppointment> | undefined>();
-  const [appointmentList, setAppointmentList] = useState<IAppointment[]>([])
+  const [appointmentList, setAppointmentList] = useState<IAppointment[]>([]);
   const [currentDay, setCurrentDay] = useState(moment().format());
   const [isOpenChooseClinic, setIsOpenChooseClinic] = useState<boolean>(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState<IAppointment | undefined>();
-  const [timelineEvents, setTimelineEvents] = useState<TimelineEventsState[] >();
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEventsState[]>();
   const [isReRender, setIsReRender] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<APPOINTMENT_STATUS>()
+  const [selectedStatus, setSelectedStatus] = useState<APPOINTMENT_STATUS>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedDay, setSelectedDay] = useState({
     [`${moment().format("YYYY")}-${moment().format("MM")}-${moment().format(
@@ -68,23 +71,21 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
   });
 
   const toast = useToast();
-  const handleReRender = () => setIsReRender(!isReRender)
+  const handleReRender = () => setIsReRender(!isReRender);
   const handleNavigate = (clinic: IClinicInfo) => {
-    navigation.navigate("BookAppointmentScreen", {clinic: clinic})
-    setIsOpenChooseClinic(false)
-  }
+    navigation.navigate("BookAppointmentScreen", { clinic: clinic });
+    setIsOpenChooseClinic(false);
+  };
   const getAppointmentList = async () => {
     try {
-              
-        const response = await appointmentApi.getAppointmentList({
-          puid: userInfo?.id
-        })
-        console.log('response: ', response);
-        if (response.status && response.data) {
-          setAppointmentList(response.data)
-        } else {
-        }
-      
+      const response = await appointmentApi.getAppointmentList({
+        puid: userInfo?.id,
+      });
+      console.log("response: ", response);
+      if (response.status && response.data) {
+        setAppointmentList(response.data);
+      } else {
+      }
     } catch (error) {
       console.log(error);
     }
@@ -97,13 +98,9 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     }, [clinic?.id, isReRender])
   );
 
-
   const currentDateAppointments: Array<IAppointment> = useMemo(() => {
-    
     return appointmentList.filter((item) => {
-      return (     
-        currentDate === item.date
-      );
+      return currentDate === item.date;
     });
   }, [currentDate]);
 
@@ -111,20 +108,19 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     () =>
       appointmentList.reduce((accumulator: any, item) => {
         const key = item.date;
-  
+
         // Nếu key đã tồn tại trong accumulator, thì cập nhật thuộc tính marked
         if (accumulator[key]) {
           accumulator[key].marked = true;
         } else {
           // Nếu key chưa tồn tại, tạo mới với thuộc tính marked
-          accumulator[key] = { marked: true, dotColor: 'blue'};
+          accumulator[key] = { marked: true, dotColor: "blue" };
         }
-  
+
         return accumulator;
       }, {}),
     [appointmentList]
   );
-  console.log("markedDate: ", markedDate);
   useEffect(() => {
     console.log("toldoList before: ", currentDateAppointments);
     console.log("current day: ", currentDate);
@@ -142,21 +138,27 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     };
 
     fetchData();
-    console.log("currentDateAppointments after after: ", currentDateAppointments);
+    console.log(
+      "currentDateAppointments after after: ",
+      currentDateAppointments
+    );
   }, [currentDate]);
 
   const handleAddAppointment = () => {
-      setIsOpenChooseClinic(!isOpenChooseClinic)
-  }
+    setIsOpenChooseClinic(!isOpenChooseClinic);
+  };
 
   const getTimelineEvents = async () => {
-    console.log("appointment list in settimelineevent: ", currentDateAppointments);
+    console.log(
+      "appointment list in settimelineevent: ",
+      currentDateAppointments
+    );
     const newArray = currentDateAppointments?.map((item: IAppointment) => {
       // console.log('start time string: ', startTimeString);
       return {
         time: item.startTime,
-        title: item.patient.firstName + ' ' + item.patient.lastName,
-        description: item.description? item.description : "",
+        title: item.patient.firstName + " " + item.patient.lastName,
+        description: item.description ? item.description : "",
         circleColor: "#009688",
         lineColor: "#009688",
       };
@@ -166,35 +168,32 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     console.log("timelineevent in gettimelineEvent after: ", timelineEvents);
   };
 
-
   return (
     <Fragment>
       <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
       <ChooseClinicModal
         isOpen={isOpenChooseClinic}
-        onClose={() => setIsOpenChooseClinic(!isOpenChooseClinic)} 
+        onClose={() => setIsOpenChooseClinic(!isOpenChooseClinic)}
         handleNavigate={handleNavigate}
-        />
+      />
 
       {selectedTask !== null && (
         <>
           <Task {...{ setModalVisible, isModalVisible }}>
-            
             <View style={styles.taskContainer}>
               <Text
                 style={{
                   color: "#9CAAC4",
                   fontSize: 16,
                   fontWeight: "600",
-                  marginBottom: 5
+                  marginBottom: 5,
                 }}
               >
                 Phòng khám
               </Text>
               <TextInput
                 style={styles.title}
-                
-                value={selectedTask?.clinics.name }
+                value={selectedTask?.clinics.name}
                 placeholder=""
               />
               <Text
@@ -202,15 +201,18 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                   color: "#9CAAC4",
                   fontSize: 16,
                   fontWeight: "600",
-                  marginBottom: 5
+                  marginBottom: 5,
                 }}
               >
                 Tên bệnh nhân
               </Text>
               <TextInput
                 style={styles.title}
-                
-                value={selectedTask?.patient.firstName + ' ' + selectedTask?.patient.lastName}
+                value={
+                  selectedTask?.patient.firstName +
+                  " " +
+                  selectedTask?.patient.lastName
+                }
                 placeholder="Tên bệnh nhân?"
               />
               <Text
@@ -224,7 +226,11 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                 Bác sĩ
               </Text>
               <View style={{ flexDirection: "row" }}>
-                <Text>{selectedTask?.doctor.firstName + ' ' + selectedTask?.doctor.lastName}</Text>
+                <Text>
+                  {selectedTask?.doctor.firstName +
+                    " " +
+                    selectedTask?.doctor.lastName}
+                </Text>
               </View>
               <View style={styles.notesContent} />
               <View>
@@ -295,16 +301,16 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                   >
                     Trạng thái
                   </Text>
-                  
+
                   <SelectDropdown
                     data={[
                       APPOINTMENT_STATUS.PENDING,
                       APPOINTMENT_STATUS.CONFIRM,
-                      APPOINTMENT_STATUS.CHECK_IN,                      
+                      APPOINTMENT_STATUS.CHECK_IN,
                       APPOINTMENT_STATUS.CANCEL,
                     ]}
                     onSelect={(selectedItem, index) => {
-                      setSelectedStatus(selectedItem)
+                      setSelectedStatus(selectedItem);
                     }}
                     buttonTextAfterSelection={(selectedItem, index) => {
                       // text represented after item is selected
@@ -325,9 +331,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                 onValueChange={handleAlarmSet}
               /> */}
               </View>
-              <View>
-              
-            </View>
+              <View></View>
             </View>
           </Task>
         </>
@@ -337,8 +341,6 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
           flex: 1,
         }}
       >
-        
-        
         <TouchableOpacity
           onPress={handleAddAppointment}
           style={styles.viewTask}
@@ -356,9 +358,9 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
           style={{
             width: "100%",
             height: Dimensions.get("window").height - 170,
-            marginTop: -20
+            marginTop: -20,
           }}
-        >           
+        >
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 100,
@@ -369,7 +371,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
               style={{
                 width: 350,
                 height: 350,
-                alignSelf: 'center', 
+                alignSelf: "center",
               }}
               current={currentDay}
               minDate={moment().format()}
@@ -402,7 +404,6 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
               markedDates={{
                 ...markedDate,
                 ...selectedDay,
-
               }}
             />
             <Timeline
@@ -419,7 +420,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                 color: "white",
                 padding: 5,
                 borderRadius: 13,
-                overflow: "hidden"
+                overflow: "hidden",
               }}
               descriptionStyle={{ color: "gray" }}
             />
@@ -475,7 +476,9 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                           fontSize: 16,
                           marginRight: 5,
                         }}
-                      >{item.startTime + "    "}</Text>
+                      >
+                        {item.startTime + "    "}
+                      </Text>
                       <Text
                         style={{
                           color: "#BBBBBB",

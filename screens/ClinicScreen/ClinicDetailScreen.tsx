@@ -245,6 +245,11 @@ export default function ClinicDetailScreen({
                       }}
                       borderRadius={20}
                       p={3}
+                      onPress={() => {
+                        navigation.navigate("DoctorInfo", {
+                          staffId: doctor.id,
+                        });
+                      }}
                     >
                       <HStack alignItems="center" space={2}>
                         <Avatar

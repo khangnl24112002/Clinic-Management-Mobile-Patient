@@ -1,5 +1,5 @@
 import React from "react";
-import { ChattingNavigatorProps } from "./UserNavigator";
+import { ChattingNavigatorProps } from "./TabNavigator";
 import {
   NativeStackScreenProps,
   createNativeStackNavigator,
@@ -7,14 +7,7 @@ import {
 import ChattingDetailScreen from "../screens/ChattingScreen/ChattingDetailScreen";
 import ChattingGroupListScreen from "../screens/ChattingScreen/ChattingGroupListScreen";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import {
-  Actionsheet,
-  Text,
-  useDisclose,
-  Image,
-  HStack,
-  Pressable,
-} from "native-base";
+import { Text, Image, HStack, Pressable } from "native-base";
 import ChattingDetailSettings from "../screens/ChattingScreen/ChattingDetailSettings";
 import { VideoCall } from "../screens/VideoCall";
 import { appColor } from "../theme";

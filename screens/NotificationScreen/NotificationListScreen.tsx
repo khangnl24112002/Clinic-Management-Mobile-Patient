@@ -16,7 +16,6 @@ import { userInfoSelector } from "../../store";
 import { firebase } from "@react-native-firebase/database";
 import { Notification } from "../../types/notification.types";
 import dayjs from "dayjs";
-import ToastAlert from "../../components/Toast/Toast";
 const NotificationListScreen = ({
   navigation,
   route,

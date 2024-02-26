@@ -30,7 +30,9 @@ import LandingPageScreen from "../screens/LandingPageScreen/LandingPageScreen";
 import AppointmentNavigator from "./AppointmentNavigator";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { IPatient, IMedicalRecord } from "../types";
+import { Ionicons } from "@expo/vector-icons";
+import ChattingNavigator from "./ChattingNavigator";
+import NotificationNavigator from "./NotificationNavigator";
 export type RootNativeTabParamList = {
   AuthenticationNavigator: {
     setLogin: (user: IUserInfo | null, token: string | null) => void | any;
@@ -45,6 +47,8 @@ export type RootNativeTabParamList = {
     setLogin: (user: IUserInfo | null, token: string | null) => void | any;
   };
   AppointmentNavigator: undefined;
+  ChattingNavigator: { screen: any; params: any };
+  NotificationNavigator: undefined;
 };
 
 export const navigationRef =
@@ -85,6 +89,14 @@ export type LandingPageScreenProps = BottomTabScreenProps<
 export type AppointmentNavigatorProps = BottomTabScreenProps<
   RootNativeTabParamList,
   "AppointmentNavigator"
+>;
+export type ChattingNavigatorProps = BottomTabScreenProps<
+  RootNativeTabParamList,
+  "ChattingNavigator"
+>;
+export type NotificationNavigatorProps = BottomTabScreenProps<
+  RootNativeTabParamList,
+  "NotificationNavigator"
 >;
 
 const TabNavigator = () => {
@@ -245,6 +257,7 @@ const TabNavigator = () => {
             headerStyle: {
               backgroundColor: appColor.white,
             },
+
             tabBarLabel: ({ focused, color }) => {
               if (focused) {
                 switch (route.name) {
@@ -290,6 +303,18 @@ const TabNavigator = () => {
                         Tin tức
                       </Text>
                     );
+                  case "ChattingNavigator":
+                    return (
+                      <Text fontSize={10} color={color}>
+                        Nhắn tin
+                      </Text>
+                    );
+                  case "NotificationNavigator":
+                    return (
+                      <Text fontSize={10} color={color}>
+                        Thông báo
+                      </Text>
+                    );
                 }
               }
               // Kiểm tra xem tab hiện tại có trong mảng các tab cần hiển thị tiêu đề không
@@ -322,6 +347,9 @@ const TabNavigator = () => {
                   />
                 );
               },
+              tabBarItemStyle: {
+                display: "none",
+              },
             }}
           />
           <RootTab.Screen
@@ -353,6 +381,9 @@ const TabNavigator = () => {
                     color={color}
                   />
                 );
+              },
+              tabBarItemStyle: {
+                display: "none",
               },
             }}
           />
@@ -393,23 +424,57 @@ const TabNavigator = () => {
             />
           )}
           {user && (
-            <RootTab.Screen
-              name="ProfileNavigator"
-              component={ProfileNavigator}
-              initialParams={{ setLogout }}
-              options={{
-                headerTitle: "Tài khoản",
-                tabBarIcon: ({ focused, color, size }) => {
-                  return (
-                    <MaterialIcons
-                      name="account-circle"
-                      size={size}
-                      color={color}
-                    />
-                  );
-                },
-              }}
-            />
+            <>
+              <RootTab.Screen
+                name="ChattingNavigator"
+                component={ChattingNavigator}
+                options={{
+                  headerTitle: "Nhắn tin",
+                  tabBarIcon: ({ focused, color, size }) => {
+                    return (
+                      <Ionicons
+                        name="chatbubble-ellipses"
+                        size={size}
+                        color={color}
+                      />
+                    );
+                  },
+                }}
+              />
+              <RootTab.Screen
+                name="NotificationNavigator"
+                component={NotificationNavigator}
+                options={{
+                  headerTitle: "Thông báo",
+                  tabBarIcon: ({ focused, color, size }) => {
+                    return (
+                      <MaterialIcons
+                        name="notifications"
+                        size={size}
+                        color={color}
+                      />
+                    );
+                  },
+                }}
+              />
+              <RootTab.Screen
+                name="ProfileNavigator"
+                component={ProfileNavigator}
+                initialParams={{ setLogout }}
+                options={{
+                  headerTitle: "Tài khoản",
+                  tabBarIcon: ({ focused, color, size }) => {
+                    return (
+                      <MaterialIcons
+                        name="account-circle"
+                        size={size}
+                        color={color}
+                      />
+                    );
+                  },
+                }}
+              />
+            </>
           )}
         </RootTab.Navigator>
       </NavigationContainer>

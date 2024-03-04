@@ -149,20 +149,40 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
   };
 
   const getTimelineEvents = async () => {
-    console.log(
-      "appointment list in settimelineevent: ",
-      currentDateAppointments
-    );
+    console.log("appointment list in settimelineevent: ", currentDateAppointments);
     const newArray = currentDateAppointments?.map((item: IAppointment) => {
-      // console.log('start time string: ', startTimeString);
+      // Khởi tạo biến circleColor và lineColor với mặc định là "#009688"
+      let circleColor = "red";
+      let lineColor = "red";
+
+      // Kiểm tra trạng thái của mục để xác định màu của vòng tròn và đường thẳng
+      switch(item.status) {
+          case APPOINTMENT_STATUS.CONFIRM:
+              circleColor = "#51cf66";
+              lineColor = "#51cf66"; // Cập nhật lineColor nếu cần thiết
+              break;
+          case APPOINTMENT_STATUS.PENDING:
+              circleColor = "#fcc419";
+              lineColor = "#fcc419"; // Cập nhật lineColor nếu cần thiết
+              break;
+          case APPOINTMENT_STATUS.CHECK_IN:
+              circleColor = "#6964ff";
+              lineColor = "#6964ff"; // Cập nhật lineColor nếu cần thiết
+              break;
+          // Thêm các trạng thái khác nếu cần thiết
+          default:
+              circleColor = "red";
+              lineColor = "red"; // Mặc định là "#009688" nếu không có trạng thái khớp
+      }
+
       return {
-        time: item.startTime,
-        title: item.patient.firstName + " " + item.patient.lastName,
-        description: item.description ? item.description : "",
-        circleColor: "#009688",
-        lineColor: "#009688",
+          time: item.startTime,
+          title: item.clinics.name,
+          description: "Bác sĩ: " + item.doctor.firstName + ' ' + item.doctor.lastName + "\nYêu cầu: " + item.clinicServices.serviceName,
+          circleColor: circleColor, // Sử dụng biến circleColor đã được xác định
+          lineColor: lineColor // Sử dụng biến lineColor đã được xác định
       };
-    });
+  });
 
     setTimelineEvents(newArray);
     console.log("timelineevent in gettimelineEvent after: ", timelineEvents);
@@ -326,10 +346,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                     disabled={true}
                   />
                 </View>
-                {/* <Switch
-                value={selectedTask?.alarm?.isOn || false}
-                onValueChange={handleAlarmSet}
-              /> */}
+                
               </View>
               <View></View>
             </View>
@@ -367,63 +384,68 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
             }}
             nestedScrollEnabled={true}
           >
-            <CalendarList
-              style={{
-                width: 350,
-                height: 350,
-                alignSelf: "center",
-              }}
-              current={currentDay}
-              minDate={moment().format()}
-              horizontal
-              pastScrollRange={0}
-              pagingEnabled
-              calendarWidth={350}
-              onDayPress={(day) => {
-                setSelectedDay({
-                  [day.dateString]: {
-                    selected: true,
-                    selectedColor: "#2E66E7",
-                  },
-                });
-                setCurrentDay(day.dateString);
-                setCurrentDate(day.dateString);
-              }}
-              monthFormat="yyyy MMMM"
-              hideArrows
-              markingType="custom"
-              theme={{
-                selectedDayBackgroundColor: "#2E66E7",
+            <View style={{ width: 350,
+                height: 350, alignSelf: 'center', borderRadius: 15, overflow: 'hidden' }}>
+              <CalendarList
+                style={{
+                  width: 350,
+                  height: 350,
+                  alignSelf: "center",
+                }}
+                current={currentDay}
+                
+                horizontal
+                pastScrollRange={12}
+                pagingEnabled
+                calendarWidth={350}
+                onDayPress={(day) => {
+                  setSelectedDay({
+                    [day.dateString]: {
+                      selected: true,
+                      selectedColor: "#2E66E7",
+                    },
+                  });
+                  setCurrentDay(day.dateString);
+                  setCurrentDate(day.dateString);
+                }}
+                monthFormat="yyyy MMMM"
+                hideArrows
+                markingType="custom"
+                theme={{
+                  selectedDayBackgroundColor: "#2E66E7",
                 selectedDayTextColor: "#ffffff",
                 todayTextColor: "#2E66E7",
-                backgroundColor: "#eaeef7",
-                calendarBackground: "#eaeef7",
+                backgroundColor: '#ffffff',
+                calendarBackground: '#ffffff',
                 textDisabledColor: "#d9dbe0",
-              }}
-              //markedDates={selectedDay}
-              markedDates={{
-                ...markedDate,
-                ...selectedDay,
-              }}
-            />
-            <Timeline
-              style={{ flex: 1 }}
-              data={timelineEvents}
-              separator={true}
-              circleSize={20}
-              circleColor="rgb(45,156,219)"
-              lineColor="rgb(45,156,219)"
-              timeContainerStyle={{ minWidth: 52, marginTop: 0 }}
-              timeStyle={{
-                textAlign: "center",
-                backgroundColor: "#ff9797",
-                color: "white",
-                padding: 5,
-                borderRadius: 13,
-                overflow: "hidden",
-              }}
-              descriptionStyle={{ color: "gray" }}
-            />
+                }}
+                //markedDates={selectedDay}
+                markedDates={{
+                  ...markedDate,
+                  ...selectedDay,
+                }}
+              />
+            </View>
+            <View
+            style={{marginTop: 10}}>
+              <Timeline
+                style={{ flex: 1 }}
+                data={timelineEvents}
+                separator={true}
+                circleSize={20}
+                
+                timeContainerStyle={{ minWidth: 52, marginTop: 0 }}
+                timeStyle={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  color: "black",
+                  padding: 5,
+                  borderRadius: 13,
+                  overflow: "hidden"
+                }}
+                descriptionStyle={{ color: "gray" }}
+              />
+            </View>
             {currentDateAppointments?.map((item) => (
               <TouchableOpacity
                 onPress={() => {
@@ -449,7 +471,9 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                         height: 12,
                         width: 12,
                         borderRadius: 6,
-                        backgroundColor: "#64d4d2",
+                        backgroundColor: item.status === APPOINTMENT_STATUS.CONFIRM ? "#51cf66" :
+                        item.status === APPOINTMENT_STATUS.PENDING ? "#fcc419" :
+                        item.status === APPOINTMENT_STATUS.CHECK_IN ? "#6964ff" : "red",
                         marginRight: 8,
                       }}
                     />
@@ -460,7 +484,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                         fontWeight: "700",
                       }}
                     >
-                      {item.patient.firstName + " " + item.patient.lastName}
+                      {item.clinics.name}
                     </Text>
                   </View>
                   <View>
@@ -477,15 +501,23 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                           marginRight: 5,
                         }}
                       >
-                        {item.startTime + "    "}
+                        {"Thời gian: " + item.startTime }
                       </Text>
+                      
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        marginLeft: 20,
+                      }}
+                    >
                       <Text
                         style={{
                           color: "#BBBBBB",
                           fontSize: 16,
                         }}
                       >
-                        {item.description}
+                        {"Trạng thái: " + item.status}
                       </Text>
                     </View>
                   </View>
@@ -494,7 +526,9 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
                   style={{
                     height: 80,
                     width: 5,
-                    backgroundColor: "#64d4d2",
+                    backgroundColor: item.status === APPOINTMENT_STATUS.CONFIRM ? "#51cf66" :
+                     item.status === APPOINTMENT_STATUS.PENDING ? "#fcc419" :
+                     item.status === APPOINTMENT_STATUS.CHECK_IN ? "#6964ff" : "red",
                     borderRadius: 5,
                   }}
                 />

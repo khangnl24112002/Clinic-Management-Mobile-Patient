@@ -68,7 +68,7 @@ export default function PatientScreen({
             mt={-3}
           >
             <Text my="2" fontWeight="bold" fontSize={20}>
-              Hồ sơ bệnh án
+              Lịch sử khám bệnh
             </Text>
             
           </HStack>

@@ -33,6 +33,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import ChattingNavigator from "./ChattingNavigator";
 import NotificationNavigator from "./NotificationNavigator";
+import "core-js/stable/atob";
 export type RootNativeTabParamList = {
   AuthenticationNavigator: {
     setLogin: (user: IUserInfo | null, token: string | null) => void | any;
@@ -127,19 +128,8 @@ const TabNavigator = () => {
   // Running before render
   const bootstrapAsync = useCallback(async () => {
     try {
-      // const userToStorage: IUserInfo = {
-      //   id: "testId",
-      //   email: "test@gmai.com",
-      //   isInputPassword: false, // dữ liệu tạm thời
-      //   firstName: "Khang",
-      //   lastName: "Nguyen Nhat",
-      //   moduleId: 4,
-      // };
-      // const token = "thisistestingtoken";
-      // await AsyncStorage.setItem("user", JSON.stringify(userToStorage));
-      // await AsyncStorage.setItem("token", token);
-      await AsyncStorage.removeItem("user");
-      await AsyncStorage.removeItem("token");
+      // await AsyncStorage.removeItem("user");
+      // await AsyncStorage.removeItem("token");
       // Restore userInfo and dispatch to the store
       const testData = await AsyncStorage.getItem("user");
       const tokenString = await AsyncStorage.getItem("token");
@@ -151,6 +141,7 @@ const TabNavigator = () => {
         const currentDate = new Date();
         if (expDate < currentDate) {
           // Token is expired
+          console.log("Token is expired!");
           await AsyncStorage.removeItem("user");
           await AsyncStorage.removeItem("token");
           logout();

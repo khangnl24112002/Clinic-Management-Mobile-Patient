@@ -14,7 +14,7 @@ import {
   Pressable,
 } from "native-base";
 import React from "react";
-import { GroupChatInfo } from "../../types";
+import { GroupChatInfo, IGroupChatMember } from "../../types";
 import { chatService } from "../../services/chat.services";
 import { ChattingGroupListScreenProps } from "../../Navigator/ChattingNavigator";
 import { TouchableOpacity } from "react-native";
@@ -57,11 +57,38 @@ export default function ChattingGroupListScreen({
   }, [groupMessageList]);
 
   // Thực hiện việc navigate đến màn hình chat cụ thể
-  const navigateToChatDetail = (groupId: number, groupName: string) => {
+  const navigateToChatDetail = (item: GroupChatInfo) => {
     navigation.navigate("ChattingDetail", {
-      groupId: groupId,
-      groupName: groupName,
+      group: item,
     });
+  };
+
+  const getGroupImage = (group: GroupChatInfo) => {
+    const groupMember = group.groupChatMember?.find(
+      (member: IGroupChatMember, index: number) =>
+        member.userId !== userInfo?.id
+    );
+    return groupMember?.avatar;
+  };
+  const renderGroupName = (group: GroupChatInfo) => {
+    if (group.type === "one-on-one") {
+      const groupMember = group.groupChatMember?.find(
+        (member: IGroupChatMember, index: number) =>
+          member.userId !== userInfo?.id
+      );
+      const memberName = groupMember?.firstName + " " + groupMember?.lastName;
+      if (memberName.length > 22) {
+        return `${memberName.slice(0, 22)}...`;
+      } else {
+        return memberName;
+      }
+    } else {
+      if (group.groupName.length > 22) {
+        return `${group.groupName.slice(0, 22)}...`;
+      } else {
+        return group.groupName;
+      }
+    }
   };
 
   // Thực hiện phần tìm kiếm trò chuyện
@@ -113,9 +140,7 @@ export default function ChattingGroupListScreen({
           data={searchList}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigateToChatDetail(item.id, item.groupName)}
-            >
+            <TouchableOpacity onPress={() => navigateToChatDetail(item)}>
               <Box alignItems="center" py="2">
                 <HStack
                   width="90%"
@@ -124,11 +149,15 @@ export default function ChattingGroupListScreen({
                   alignItems="center"
                 >
                   <Image
-                    bg="#fff"
-                    size={20}
+                    bg="gray.300"
+                    size={16}
                     borderRadius={40}
-                    source={require("../../assets/images/chat/groupchatdefault.png")}
-                    alt="aa"
+                    source={
+                      item.type === "one-on-one"
+                        ? { uri: getGroupImage(item) }
+                        : require("../../assets/images/chat/groupchatdefault.png")
+                    }
+                    alt={item.groupName}
                   />
                   <VStack>
                     <Text
@@ -137,20 +166,20 @@ export default function ChattingGroupListScreen({
                       }}
                       color={appColor.textTitle}
                       style={{ flexWrap: "wrap" }}
-                      fontSize={18}
+                      fontSize={16}
                     >
-                      {item.groupName.length > 22
-                        ? `${item.groupName.slice(0, 22)}...`
-                        : item.groupName}
+                      {renderGroupName(item)}
                     </Text>
-                    <Text
-                      color={appColor.textSecondary}
-                      _dark={{
-                        color: "warmGray.200",
-                      }}
-                    >
-                      {item.groupChatMember?.length + " thành viên"}
-                    </Text>
+                    {item.type === "group" && (
+                      <Text
+                        color={appColor.textSecondary}
+                        _dark={{
+                          color: "warmGray.200",
+                        }}
+                      >
+                        {item.groupChatMember?.length + " thành viên"}
+                      </Text>
+                    )}
                   </VStack>
                   <Spacer />
                 </HStack>
@@ -159,7 +188,7 @@ export default function ChattingGroupListScreen({
           )}
           keyExtractor={(item) => JSON.stringify(item.id)}
         />
-        <Pressable
+        {/* <Pressable
           style={styles.but}
           onPress={() => {
             setOpenCreateChattingGroup(true);
@@ -170,7 +199,7 @@ export default function ChattingGroupListScreen({
             color={appColor.white}
             size={8}
           />
-        </Pressable>
+        </Pressable> */}
       </Box>
     );
   };
@@ -182,10 +211,9 @@ export default function ChattingGroupListScreen({
       ) : (
         <Box flex="1" maxW="90%" minW="90%" mt="5%" alignSelf="center">
           <Text fontFamily="body" fontSize={20} color="coolGray.500">
-            Bạn chưa tham gia nhóm chat nào! Hãy tạo nhóm chat mới cho riêng
-            bạn!
+            Bạn chưa tham gia nhóm chat nào.
           </Text>
-          <Pressable
+          {/* <Pressable
             style={styles.but}
             onPress={() => {
               setOpenCreateChattingGroup(true);
@@ -196,9 +224,10 @@ export default function ChattingGroupListScreen({
               color={appColor.white}
               size={8}
             />
-          </Pressable>
+          </Pressable> */}
         </Box>
       )}
+
       <CreateChattingModal
         isOpen={openCreateChattingGroup}
         onClose={() => {

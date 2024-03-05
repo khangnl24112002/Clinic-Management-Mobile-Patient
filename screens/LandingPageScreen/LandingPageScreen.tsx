@@ -37,7 +37,6 @@ export default function LandingPageScreen({
         clinicId: clinic?.id,
         userId: userInfo?.id,
       });
-      console.log("response: ", response);
       if (response.status && response.data) {
         setPatientInfo(response.data[0]);
         dispatch(setPatient(response.data[0]));
@@ -66,7 +65,7 @@ export default function LandingPageScreen({
           );
         },
       });
-      // navigation.navigate("AuthenticationNavigator", { setLogin });
+      navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const handlePressNews = () => {
@@ -87,7 +86,7 @@ export default function LandingPageScreen({
           );
         },
       });
-      // navigation.navigate("AuthenticationNavigator", { setLogin });
+      navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const handlePressClinic = () => {
@@ -108,7 +107,7 @@ export default function LandingPageScreen({
           );
         },
       });
-      // navigation.navigate("AuthenticationNavigator", { setLogin });
+      navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const handlePressNotification = () => {
@@ -126,7 +125,7 @@ export default function LandingPageScreen({
           );
         },
       });
-      // navigation.navigate("AuthenticationNavigator", { setLogin });
+      navigation.navigate("AuthenticationNavigator", { setLogin });
     }
   };
   const carousel = [

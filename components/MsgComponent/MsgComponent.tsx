@@ -8,16 +8,29 @@ import TimeDelivery from "./TimeDelivery/TimeDelivery";
 import { Entypo } from "@expo/vector-icons";
 
 const MsgComponent = (props: any) => {
-  const { sender, content, time, type, link, username } = props;
+  const { sender, content, time, type, link, username, avatar } = props;
   return (
     <Pressable style={{ marginVertical: 0 }}>
       <Image
-        src={`https://ui-avatars.com/api/?name=${username}`}
+        src={avatar ? avatar : `https://ui-avatars.com/api/?name=${username}`}
         borderRadius={100}
         size={50}
         alt="ff"
         style={[styles.avatarBox, sender ? styles.right : [styles.left]]}
       />
+      <Text
+        style={{
+          // Khoảng cách 2 bên của message box
+          marginHorizontal: 45,
+          minWidth: 80,
+          maxWidth: "80%",
+          alignSelf: sender ? "flex-end" : "flex-start",
+          color: appColor.textSecondary,
+          fontSize: 12,
+        }}
+      >
+        {username}
+      </Text>
       <View
         style={[
           styles.masBox,
@@ -65,7 +78,7 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    marginVertical: 5,
+    marginBottom: 5,
     borderRadius: 10,
   },
 

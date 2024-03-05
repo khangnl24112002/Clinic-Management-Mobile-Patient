@@ -24,6 +24,7 @@ import { appColor } from "../../theme";
 import { useAppSelector } from "../../hooks";
 import { userInfoSelector } from "../../store";
 import CreateChattingModal from "./CreateChattingModal/CreateChattingModal";
+import { useFocusEffect } from "@react-navigation/native";
 export default function ChattingGroupListScreen({
   navigation,
   route,
@@ -52,10 +53,11 @@ export default function ChattingGroupListScreen({
       console.log(error);
     }
   };
-  React.useEffect(() => {
-    getListGroupChat();
-  }, [groupMessageList]);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      getListGroupChat();
+    }, [groupMessageList])
+  );
   // Thực hiện việc navigate đến màn hình chat cụ thể
   const navigateToChatDetail = (item: GroupChatInfo) => {
     navigation.navigate("ChattingDetail", {
@@ -188,7 +190,7 @@ export default function ChattingGroupListScreen({
           )}
           keyExtractor={(item) => JSON.stringify(item.id)}
         />
-        {/* <Pressable
+        <Pressable
           style={styles.but}
           onPress={() => {
             setOpenCreateChattingGroup(true);
@@ -199,7 +201,7 @@ export default function ChattingGroupListScreen({
             color={appColor.white}
             size={8}
           />
-        </Pressable> */}
+        </Pressable>
       </Box>
     );
   };
@@ -211,9 +213,10 @@ export default function ChattingGroupListScreen({
       ) : (
         <Box flex="1" maxW="90%" minW="90%" mt="5%" alignSelf="center">
           <Text fontFamily="body" fontSize={20} color="coolGray.500">
-            Bạn chưa tham gia nhóm chat nào.
+            Bạn chưa tham gia nhóm chat nào! Hãy tạo nhóm chat mới cho riêng
+            bạn!
           </Text>
-          {/* <Pressable
+          <Pressable
             style={styles.but}
             onPress={() => {
               setOpenCreateChattingGroup(true);
@@ -224,7 +227,7 @@ export default function ChattingGroupListScreen({
               color={appColor.white}
               size={8}
             />
-          </Pressable> */}
+          </Pressable>
         </Box>
       )}
 

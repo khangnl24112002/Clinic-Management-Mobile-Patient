@@ -1,6 +1,5 @@
 import { axiosClient } from "../config/axios";
 import { IApiResponse, GroupChatInfo, ICreateGroupChatRequest } from "../types";
-
 export const chatService = {
   async getGroupChatByGroupId(groupId: string) {
     return axiosClient.get(`/chats/${groupId}/users`);
@@ -24,8 +23,12 @@ export const chatService = {
   ) {
     return axiosClient.post(`chats/${groupChatId}/user/${userId}`, userList);
   },
-  async removeMemberOutGroupChat(groupChatId: string, userId: string) {
-    return axiosClient.delete(`/chats/${groupChatId}/user/${userId}`);
+  async removeMemberOutGroupChat(groupChatId: string, userList: string[]) {
+    return axiosClient.delete(`/chats/${groupChatId}/user/`, {
+      data: {
+        userList,
+      },
+    });
   },
   async updateGroupChatName(groupId: string, groupName: string) {
     return axiosClient.put(`/chats/${groupId}`, groupName);

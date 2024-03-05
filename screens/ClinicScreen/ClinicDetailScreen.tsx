@@ -67,7 +67,8 @@ export default function ClinicDetailScreen({
         if (
           staffs[i].role.permissions.findIndex(
             (permission) => permission.id === 2
-          ) !== -1
+          ) !== -1 &&
+          staffs[i].users.moduleId !== 2
         ) {
           filterDoctors.push(staffs[i]);
         }
@@ -240,6 +241,7 @@ export default function ClinicDetailScreen({
                 doctors.map((doctor: IStaff, index: any) => {
                   return (
                     <Pressable
+                      key={index}
                       _pressed={{
                         backgroundColor: appColor.background,
                       }}
@@ -310,18 +312,19 @@ export default function ClinicDetailScreen({
             </Text>
             <VStack>
               {services &&
-                services.map((service: IClinicService) => {
+                services.map((service: IClinicService, index: number) => {
                   return (
                     <Pressable
                       _pressed={{ backgroundColor: appColor.background }}
                       p={3}
                       borderRadius={20}
+                      key={index}
                     >
-                      <VStack>
-                        <Text fontWeight="bold" fontSize={15}>
-                          {service.serviceName}
-                        </Text>
-                        <HStack>
+                      <Text mb={3} fontWeight="bold" fontSize={15}>
+                        {service.serviceName}
+                      </Text>
+                      <VStack maxW="80%">
+                        <HStack mt={-2}>
                           <Text
                             fontWeight="bold"
                             color={appColor.textSecondary}
@@ -329,7 +332,10 @@ export default function ClinicDetailScreen({
                           >
                             Mô tả:{" "}
                           </Text>
-                          <Text color={appColor.textSecondary}>
+                          <Text
+                            textAlign="justify"
+                            color={appColor.textSecondary}
+                          >
                             {service.description}
                           </Text>
                         </HStack>
@@ -369,9 +375,10 @@ export default function ClinicDetailScreen({
             </Text>
             <VStack>
               {newsList &&
-                newsList.map((newItem: INews) => {
+                newsList.map((newItem: INews, index: number) => {
                   return (
                     <Pressable
+                      key={index}
                       _pressed={{ backgroundColor: appColor.background }}
                       p={3}
                       borderRadius={20}

@@ -69,8 +69,7 @@ export default function DoctorInfoScreen({
       navigationRef.current?.navigate("ChattingNavigator", {
         screen: "ChattingDetail",
         params: {
-          groupId: response.data.id,
-          groupName: response.data.groupName,
+          group: response.data,
         },
       });
     } else {
@@ -206,7 +205,7 @@ export default function DoctorInfoScreen({
               <Text color={appColor.textTitle} fontWeight="bold">
                 Chuyên khoa:{" "}
               </Text>
-              <Text ml={12} color={appColor.textSecondary}>
+              <Text ml={12} fontWeight="bold" color={appColor.textSecondary}>
                 {doctor?.specialize}
               </Text>
             </HStack>
@@ -214,7 +213,9 @@ export default function DoctorInfoScreen({
               <Text color={appColor.textTitle} fontWeight="bold">
                 Số năm kinh nghiệm:{" "}
               </Text>
-              <Text color={appColor.textSecondary}>{doctor?.experience}</Text>
+              <Text fontWeight="bold" color={appColor.textSecondary}>
+                {doctor?.experience}
+              </Text>
             </HStack>
             {doctor.description !== "" && doctor.description && (
               <Text color={appColor.textSecondary}>{doctor?.description}</Text>

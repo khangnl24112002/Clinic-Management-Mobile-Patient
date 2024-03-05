@@ -20,21 +20,23 @@ export default function PatientScreen({
   navigation,
   route,
 }: MedicalRecordProps) {
-  
   const clinic = useAppSelector(ClinicSelector);
   const userInfo = useAppSelector(userInfoSelector);
-  
-  const [medicalRecordList, setMedicalRecordList] = useState<IMedicalRecord[]>([]);
+
+  const [medicalRecordList, setMedicalRecordList] = useState<IMedicalRecord[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [recordSelected, setRecordSelected] = useState<IMedicalRecord>()
+  const [recordSelected, setRecordSelected] = useState<IMedicalRecord>();
   const getMedicalRecordList = async () => {
     try {
-      if (userInfo?.id)
-      {
-        const response = await medicalRecordApi.getMedicalRecords({ puid: userInfo?.id });
-        console.log('response: ', response);
+      if (userInfo?.id) {
+        const response = await medicalRecordApi.getMedicalRecords({
+          puid: userInfo?.id,
+        });
+        console.log("response: ", response);
         if (response.status && response.data) {
-            setMedicalRecordList(response.data)
+          setMedicalRecordList(response.data);
         } else {
         }
       }
@@ -61,7 +63,7 @@ export default function PatientScreen({
       <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
       {medicalRecordList?.length ? (
         <>
-          <HStack
+          {/* <HStack
             width="full"
             justifyContent="space-between"
             alignItems="center"
@@ -71,33 +73,44 @@ export default function PatientScreen({
               Lịch sử khám bệnh
             </Text>
             
-          </HStack>
+          </HStack> */}
           <ScrollView>
             <VStack space={5}>
-              {medicalRecordList.map((record: IMedicalRecord, index: number) => {
-                return (
-                  <Box
-                    borderRadius={20}
-                    backgroundColor={appColor.background}
-                    key={index}
-                    p={3}
-                    minW="100%"
-                    maxW="100%"
-                  >
-                    <HStack justifyContent="space-between" alignItems="center">
-                      <Text
-                        fontWeight="bold"
-                        color={appColor.textTitle}
-                        fontSize={16}
-                        maxWidth={"90%"}
+              {medicalRecordList.map(
+                (record: IMedicalRecord, index: number) => {
+                  return (
+                    <Box
+                      borderRadius={20}
+                      backgroundColor={appColor.background}
+                      key={index}
+                      p={3}
+                      minW="100%"
+                      maxW="100%"
+                    >
+                      <HStack
+                        justifyContent="space-between"
+                        alignItems="center"
                       >
-                        Bác sĩ khám bệnh: {record? record.doctor.firstName + " " + record.doctor.lastName : null}
-                      </Text>
-                      <HStack space={2} alignItems="center">                       
+                        <Text
+                          fontWeight="bold"
+                          color={appColor.textTitle}
+                          fontSize={16}
+                          maxWidth={"90%"}
+                        >
+                          Bác sĩ khám bệnh:{" "}
+                          {record
+                            ? record.doctor.firstName +
+                              " " +
+                              record.doctor.lastName
+                            : null}
+                        </Text>
+                        <HStack space={2} alignItems="center">
                           <>
                             <Pressable
                               onPress={() => {
-                                navigation.navigate("MedicalRecordDetail", {record: record})
+                                navigation.navigate("MedicalRecordDetail", {
+                                  record: record,
+                                });
                               }}
                             >
                               <FontAwesome5
@@ -118,38 +131,45 @@ export default function PatientScreen({
                               />
                             </Pressable> */}
                           </>
-                        
+                        </HStack>
                       </HStack>
-                    </HStack>
-                    
-                    <HStack space={4} mt={2}>
-                      <VStack>
-                        <Text fontWeight="bold" color={appColor.textSecondary}>
-                          Chẩn đoán:
-                        </Text>
-                        <Text fontWeight="bold" color={appColor.textSecondary}>
-                          Ngày khám:
-                        </Text>
-                      </VStack>
-                      <VStack>
-                        <Text color={appColor.textSecondary}>
-                          {record? record.diagnose: null}
-                        </Text>
-                        <Text color={appColor.textSecondary}>
-                          {record.dateCreated? moment(record.dateCreated).format('DD/MM/YYYY'): null}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                );
-              })}
+
+                      <HStack space={4} mt={2}>
+                        <VStack>
+                          <Text
+                            fontWeight="bold"
+                            color={appColor.textSecondary}
+                          >
+                            Chẩn đoán:
+                          </Text>
+                          <Text
+                            fontWeight="bold"
+                            color={appColor.textSecondary}
+                          >
+                            Ngày khám:
+                          </Text>
+                        </VStack>
+                        <VStack>
+                          <Text color={appColor.textSecondary}>
+                            {record ? record.diagnose : null}
+                          </Text>
+                          <Text color={appColor.textSecondary}>
+                            {record.dateCreated
+                              ? moment(record.dateCreated).format("DD/MM/YYYY")
+                              : null}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    </Box>
+                  );
+                }
+              )}
             </VStack>
           </ScrollView>
         </>
       ) : (
         <Text>Danh sách rỗng</Text>
       )}
-      
     </Box>
   );
 }

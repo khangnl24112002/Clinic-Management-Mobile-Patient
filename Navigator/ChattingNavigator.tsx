@@ -96,6 +96,9 @@ export default function ChattingNavigator({
           headerRight: () => (
             <>
               <Pressable
+                _pressed={{
+                  backgroundColor: "primary.100",
+                }}
                 borderWidth={1}
                 mr={2}
                 borderColor={appColor.primary}
@@ -114,6 +117,9 @@ export default function ChattingNavigator({
                 />
               </Pressable>
               <Pressable
+                _pressed={{
+                  backgroundColor: "primary.100",
+                }}
                 borderWidth={1}
                 borderColor={appColor.primary}
                 borderRadius={100}

@@ -122,26 +122,27 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     [appointmentList]
   );
   useEffect(() => {
-    console.log("toldoList before: ", currentDateAppointments);
+    // console.log("toldoList before: ", currentDateAppointments);
+    // console.log('marked:', markedDate)
     console.log("current day: ", currentDate);
     const fetchData = async () => {
       try {
         await getTimelineEvents();
-        console.log(
-          "timeline events after getTimelineEvents: ",
-          timelineEvents
-        );
-        console.log("currentDateAppointments after: ", currentDateAppointments);
+        // console.log(
+        //   "timeline events after getTimelineEvents: ",
+        //   timelineEvents
+        // );
+        //console.log("currentDateAppointments after: ", currentDateAppointments);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-    console.log(
-      "currentDateAppointments after after: ",
-      currentDateAppointments
-    );
+    // console.log(
+    //   "currentDateAppointments after after: ",
+    //   currentDateAppointments
+    // );
   }, [currentDate]);
 
   const handleAddAppointment = () => {

@@ -22,6 +22,7 @@ import { helpers } from "../../utils/helper";
 import { useAppSelector } from "../../hooks";
 import { userInfoSelector } from "../../store";
 import { navigationRef } from "../../Navigator/TabNavigator";
+import HTMLView from "react-native-htmlview";
 
 export default function DoctorInfoScreen({
   navigation,
@@ -218,7 +219,7 @@ export default function DoctorInfoScreen({
               </Text>
             </HStack>
             {doctor.description !== "" && doctor.description && (
-              <Text color={appColor.textSecondary}>{doctor?.description}</Text>
+              <HTMLView value={doctor?.description} />
             )}
             {doctor.description === "" ||
               (!doctor.description && <Text>Chưa có mô tả.</Text>)}

@@ -107,6 +107,8 @@ export default function ChattingGroupListScreen({
     }
   };
 
+  // console.log(searchList[1]);
+
   const renderGroupList = () => {
     return (
       <Box flex="1">
@@ -190,7 +192,7 @@ export default function ChattingGroupListScreen({
           )}
           keyExtractor={(item) => JSON.stringify(item.id)}
         />
-        <Pressable
+        {/* <Pressable
           style={styles.but}
           onPress={() => {
             setOpenCreateChattingGroup(true);
@@ -201,11 +203,12 @@ export default function ChattingGroupListScreen({
             color={appColor.white}
             size={8}
           />
-        </Pressable>
+        </Pressable> */}
       </Box>
     );
   };
 
+  // console.log(searchList[0]);
   return (
     <React.Fragment>
       {groupMessageList.length ? (
@@ -213,10 +216,9 @@ export default function ChattingGroupListScreen({
       ) : (
         <Box flex="1" maxW="90%" minW="90%" mt="5%" alignSelf="center">
           <Text fontFamily="body" fontSize={20} color="coolGray.500">
-            Bạn chưa tham gia nhóm chat nào! Hãy tạo nhóm chat mới cho riêng
-            bạn!
+            Bạn chưa tham gia nhóm chat nào.
           </Text>
-          <Pressable
+          {/* <Pressable
             style={styles.but}
             onPress={() => {
               setOpenCreateChattingGroup(true);
@@ -227,7 +229,7 @@ export default function ChattingGroupListScreen({
               color={appColor.white}
               size={8}
             />
-          </Pressable>
+          </Pressable> */}
         </Box>
       )}
 

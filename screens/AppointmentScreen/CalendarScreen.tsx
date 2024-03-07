@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useToast } from "native-base";
 import { useAppSelector } from "../../hooks";
-import { ClinicSelector, PatientSelector, userInfoSelector } from "../../store";
+import { ClinicSelector, userInfoSelector } from "../../store";
 import SelectDropdown from "react-native-select-dropdown";
 import { AppointmentScreenProps } from "../../Navigator";
 import Timeline from "react-native-timeline-flatlist";
@@ -23,11 +23,10 @@ import { CalendarList } from "react-native-calendars";
 import {
   IAppointment,
   IClinicInfo,
-  IUpdateAppointmentPayload,
+
 } from "../../types";
 import { APPOINTMENT_STATUS } from "../../enums";
-import { appointmentApi, staffApi } from "../../services";
-import ToastAlert from "../../components/Toast/Toast";
+import { appointmentApi, } from "../../services";
 import Task from "./Task";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -51,7 +50,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
       "DD"
     )}`
   );
-  //const [todoList, setTodoList] = useState<Array<IAppointment> | undefined>();
+  
   const [appointmentList, setAppointmentList] = useState<IAppointment[]>([]);
   const [currentDay, setCurrentDay] = useState(moment().format());
   const [isOpenChooseClinic, setIsOpenChooseClinic] = useState<boolean>(false);
@@ -70,7 +69,7 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     },
   });
 
-  const toast = useToast();
+  
   const handleReRender = () => setIsReRender(!isReRender);
   const handleNavigate = (clinic: IClinicInfo) => {
     navigation.navigate("BookAppointmentScreen", { clinic: clinic });
@@ -98,10 +97,20 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     }, [clinic?.id, isReRender])
   );
 
+  function compare( a:IAppointment, b:IAppointment ) {
+    if ( a.startTime < b.startTime ){
+      return -1;
+    }
+    if ( a.startTime > b.startTime ){
+      return 1;
+    }
+    return 0;
+  } 
+
   const currentDateAppointments: Array<IAppointment> = useMemo(() => {
     return appointmentList.filter((item) => {
       return currentDate === item.date;
-    });
+    }).sort(compare);
   }, [currentDate]);
 
   const markedDate = useMemo(
@@ -122,26 +131,27 @@ export default function CalendarScreen({ navigation }: AppointmentScreenProps) {
     [appointmentList]
   );
   useEffect(() => {
-    console.log("toldoList before: ", currentDateAppointments);
+    // console.log("toldoList before: ", currentDateAppointments);
+    // console.log('marked:', markedDate)
     console.log("current day: ", currentDate);
     const fetchData = async () => {
       try {
         await getTimelineEvents();
-        console.log(
-          "timeline events after getTimelineEvents: ",
-          timelineEvents
-        );
-        console.log("currentDateAppointments after: ", currentDateAppointments);
+        // console.log(
+        //   "timeline events after getTimelineEvents: ",
+        //   timelineEvents
+        // );
+        //console.log("currentDateAppointments after: ", currentDateAppointments);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-    console.log(
-      "currentDateAppointments after after: ",
-      currentDateAppointments
-    );
+    // console.log(
+    //   "currentDateAppointments after after: ",
+    //   currentDateAppointments
+    // );
   }, [currentDate]);
 
   const handleAddAppointment = () => {

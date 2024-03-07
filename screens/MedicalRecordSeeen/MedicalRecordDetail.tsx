@@ -18,13 +18,13 @@ import {
   Image,
 } from "native-base";
 import moment from "moment";
-import { AntDesign } from '@expo/vector-icons';
-import { ClinicSelector, PatientSelector} from "../../store";
+import { AntDesign } from "@expo/vector-icons";
+import { ClinicSelector, PatientSelector } from "../../store";
 import { StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import ToastAlert from "../../components/Toast/Toast";
-import PrescriptionModal from './PrescriptionModal'
-import MedicalRecordServiceModal from './MedicalRecordServiceModal'
+import PrescriptionModal from "./PrescriptionModal";
+import MedicalRecordServiceModal from "./MedicalRecordServiceModal";
 import { useAppSelector } from "../../hooks";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -74,8 +74,10 @@ export default function MedicalRecordDetail({
   const clinic = useAppSelector(ClinicSelector);
   const patientInfo = useAppSelector(PatientSelector);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isOpenPrescriptionModal, setIsOpenPrescriptionModal] = useState<boolean>(false)
-  const [isOpenMedicalServiceModal, setIsOpenMedicalServiceModal] = useState<boolean>(false)
+  const [isOpenPrescriptionModal, setIsOpenPrescriptionModal] =
+    useState<boolean>(false);
+  const [isOpenMedicalServiceModal, setIsOpenMedicalServiceModal] =
+    useState<boolean>(false);
 
   const {
     control,
@@ -115,19 +117,19 @@ export default function MedicalRecordDetail({
       alignItems="center"
       p={5}
       borderRadius={20}
+      mt="5%"
     >
-        <PrescriptionModal 
-            isOpen={isOpenPrescriptionModal} 
-            onClose={() => setIsOpenPrescriptionModal(false)}
-            prescriptionList={record.prescriptionDetail}
-            />
-        <MedicalRecordServiceModal
-            isOpen={isOpenMedicalServiceModal}
-            onClose={() => setIsOpenMedicalServiceModal(false)}
-            medicalServiceList={record.medicalRecordServices}
-            />
+      <PrescriptionModal
+        isOpen={isOpenPrescriptionModal}
+        onClose={() => setIsOpenPrescriptionModal(false)}
+        prescriptionList={record.prescriptionDetail}
+      />
+      <MedicalRecordServiceModal
+        isOpen={isOpenMedicalServiceModal}
+        onClose={() => setIsOpenMedicalServiceModal(false)}
+        medicalServiceList={record.medicalRecordServices}
+      />
       <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
-      <Heading mb={2}>Hồ sơ bệnh án</Heading>
 
       <ScrollView minWidth="100%" maxWidth="100%">
         <VStack space={5}>
@@ -348,30 +350,40 @@ export default function MedicalRecordDetail({
             />
           </FormControl>
         </VStack>
-      </ScrollView>
-      <VStack space={3}>
-          <Button.Group space={2} marginTop={10}>
-            <Button 
-            leftIcon={<AntDesign name="printer" size={24} color="white" />}
-            bg="#ff8a63" onPress={() => setIsOpenPrescriptionModal(true)}>
-              Xem đơn thuốc
-            </Button>
-            <Button
-             leftIcon={<AntDesign name="medicinebox" size={24} color="white" />}
-            bg="#ff8a63" onPress={() => setIsOpenMedicalServiceModal(true)}>
-              Xem chỉ định dịch vụ
-            </Button>
-          </Button.Group>
+        <VStack space={3} maxW="100%" minW="100%" mt={8}>
           <Button
-            bg="grey"
+            leftIcon={<AntDesign name="printer" size={24} color="white" />}
+            bg="#ff8a63"
+            onPress={() => setIsOpenPrescriptionModal(true)}
+          >
+            Xem đơn thuốc
+          </Button>
+          <Button
+            w="full"
+            leftIcon={<AntDesign name="medicinebox" size={24} color="white" />}
+            bg="#ff8a63"
+            onPress={() => setIsOpenMedicalServiceModal(true)}
+          >
+            Xem dịch vụ
+          </Button>
+          <Button
+            bg="#fff"
+            borderWidth={1}
+            borderColor={appColor.primary}
+            _text={{
+              color: "primary.300",
+            }}
+            _pressed={{
+              backgroundColor: "primary.100",
+            }}
             onPress={() => {
-              if (patientInfo)
-                navigation.navigate("MedicalRecord");
+              if (patientInfo) navigation.navigate("MedicalRecord");
             }}
           >
             Quay lại
           </Button>
-      </VStack>
+        </VStack>
+      </ScrollView>
     </Box>
   );
 }

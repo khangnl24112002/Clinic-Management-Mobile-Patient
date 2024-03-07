@@ -9,26 +9,35 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useToast } from 'native-base'
+import { useToast } from "native-base";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import ToastAlert from "../../components/Toast/Toast";
-import { AntDesign } from '@expo/vector-icons';
-import { Image } from 'native-base'
+import { AntDesign } from "@expo/vector-icons";
+import { Image } from "native-base";
 import { BookAppointmentScreenProps } from "../../Navigator";
 import { CalendarList } from "react-native-calendars";
 import moment from "moment";
-import { IClinicStaff, IPatient, IClinicService, INewAppointmentPayload } from '../../types'
+import {
+  IClinicStaff,
+  IPatient,
+  IClinicService,
+  INewAppointmentPayload,
+} from "../../types";
 import { v4 as uuidv4 } from "uuid";
 import SelectDropdown from "react-native-select-dropdown";
 import { useAppSelector } from "../../hooks";
 import { ClinicSelector, PatientSelector, userInfoSelector } from "../../store";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { staffApi, patientApi, clinicServiceApi, appointmentApi } from "../../services";
+import {
+  staffApi,
+  patientApi,
+  clinicServiceApi,
+  appointmentApi,
+} from "../../services";
 const { width: vw } = Dimensions.get("window");
 moment().format("YYYY/MM/DD");
 const chevronDown = require("../../assets/chevron_down.png");
-import { APPOINTMENT_STATUS, Gender } from '../../enums';
-
+import { APPOINTMENT_STATUS, Gender } from "../../enums";
 
 export default function CreateTask({
   navigation,
@@ -53,18 +62,23 @@ export default function CreateTask({
   const [serviceSelected, setServiceSelected] = useState<IClinicService>();
   const [notesText, setNotesText] = useState("");
   const [doctorList, setDoctorList] = useState<IClinicStaff[]>([]);
-  const [clinicServiceList, setClinicServiceList] = useState<IClinicService[]>([]);
-  const [startTime, setStartTime] = useState<string>("09:00")
+  const [clinicServiceList, setClinicServiceList] = useState<IClinicService[]>(
+    []
+  );
+  const [startTime, setStartTime] = useState<string>("09:00");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [patientInfo, setPatientInfo] = useState<IPatient>();
 
   const getPatientInfo = async () => {
     try {
-      const response = await patientApi.getPatients({ clinicId: clinic?.id, userId: userInfo?.id });
-        console.log('response: ', response);
-        if (response.status && response.data) {
-            setPatientInfo(response.data[0]);
-        }
+      const response = await patientApi.getPatients({
+        clinicId: clinic?.id,
+        userId: userInfo?.id,
+      });
+      console.log("response: ", response);
+      if (response.status && response.data) {
+        setPatientInfo(response.data[0]);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -74,12 +88,15 @@ export default function CreateTask({
 
   const getDoctorList = async () => {
     try {
-      if (clinic?.id)
-      {
-        const response = await staffApi.getStaffs({ clinicId: clinic?.id, isDisabled: false, isAcceptInvite: true });
-        console.log('response: ', response);
+      if (clinic?.id) {
+        const response = await staffApi.getStaffs({
+          clinicId: clinic?.id,
+          isDisabled: false,
+          isAcceptInvite: true,
+        });
+        console.log("response: ", response);
         if (response.status && response.data) {
-          setDoctorList(response.data)
+          setDoctorList(response.data);
         } else {
         }
       }
@@ -92,15 +109,15 @@ export default function CreateTask({
     getDoctorList();
   }, [clinic?.id]);
 
-  
   const getClinicServiceList = async () => {
     try {
-      if (clinic?.id)
-      {
+      if (clinic?.id) {
         const response = await clinicServiceApi.getClinicServices(clinic!.id);
         //console.log('response: ', response);
         if (response.status && response.data) {
-          setClinicServiceList(response.data.filter(service => !service.isDisabled))
+          setClinicServiceList(
+            response.data.filter((service) => !service.isDisabled)
+          );
         } else {
         }
       }
@@ -122,45 +139,45 @@ export default function CreateTask({
       doctorId: doctorSelected!.id,
       patientId: patientInfo!.id,
       serviceId: serviceSelected!.id,
-      date: currentDay.slice(0,10),
-      startTime: startTime? startTime : "",
-      endTime: lastTwoChars==="00"? firstThreeChars + "15" : firstThreeChars + "45",
+      date: currentDay.slice(0, 10),
+      startTime: startTime ? startTime : "",
+      endTime:
+        lastTwoChars === "00" ? firstThreeChars + "15" : firstThreeChars + "45",
       description: notesText,
-      status: APPOINTMENT_STATUS.PENDING
-    }
+      status: APPOINTMENT_STATUS.PENDING,
+    };
 
-    console.log('payload', payload);
+    console.log("payload", payload);
     const res = await appointmentApi.createAppointment(payload);
 
     if (res.status) {
       toast.show({
         render: () => {
-            return (
+          return (
             <ToastAlert
-                title="Thành công"
-                description="Thêm lịch hẹn thành công!"
-                status="success"
+              title="Thành công"
+              description="Thêm lịch hẹn thành công!"
+              status="success"
             />
-            );
+          );
         },
-        });
-        navigation.navigate("AppointmentScreen")
-    }
-    else {
+      });
+      navigation.navigate("AppointmentScreen");
+    } else {
       toast.show({
         render: () => {
-        return (
+          return (
             <ToastAlert
-            title="Lỗi"
-            description="Thêm lịch hẹn thất bại. Vui lòng kiểm tra lại thông tin."
-            status="error"
+              title="Lỗi"
+              description="Thêm lịch hẹn thất bại. Vui lòng kiểm tra lại thông tin."
+              status="error"
             />
-        );
+          );
         },
-    });
+      });
     }
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
   const renderAddTask = () => {
     return (
       <>
@@ -196,7 +213,7 @@ export default function CreateTask({
                   selectedColor: "#2E66E7",
                 },
               });
-              setCurrentDay(day.dateString.slice(0,10));
+              setCurrentDay(day.dateString.slice(0, 10));
             }}
             monthFormat="yyyy MMMM"
             hideArrows
@@ -224,10 +241,14 @@ export default function CreateTask({
             value={currentDay.substring(0, 10).split("-").reverse().join("-")}
           />
           <SelectDropdown
-            data={doctorList.map((doctor) => (doctor.users? doctor.users.firstName + ' ' + doctor.users.lastName : null))}
+            data={doctorList.map((doctor) =>
+              doctor.users
+                ? doctor.users.firstName + " " + doctor.users.lastName
+                : null
+            )}
             onSelect={(selectedItem, index) => {
-              setDoctorName(selectedItem)
-              setDoctorSelected(doctorList[index])
+              setDoctorName(selectedItem);
+              setDoctorSelected(doctorList[index]);
             }}
             defaultButtonText={"Chọn bác sĩ"}
             buttonTextAfterSelection={(selectedItem, index) => {
@@ -247,29 +268,29 @@ export default function CreateTask({
             rowTextStyle={styles.dropdown1RowTxtStyle}
           />
           <View style={styles.notesContent} />
-          
+
           <SelectDropdown
-              data={clinicServiceList.map((service) => (service.serviceName))}
-              onSelect={(selectedItem, index) => {
-                setServiceSelected(clinicServiceList[index])
-              }}
-              defaultButtonText={"Chọn dịch vụ khám bệnh"}
-              buttonTextAfterSelection={(selectedItem, index) => {
-                return selectedItem;
-              }}
-              rowTextForSelection={(item, index) => {
-                return item;
-              }}
-              buttonStyle={styles.dropdown1BtnStyle}
-              buttonTextStyle={styles.dropdown1BtnTxtStyle}
-              renderDropdownIcon={() => (
-                <Image alt="icon" source={chevronDown} size={18} />
-              )}
-              dropdownIconPosition={"right"}
-              dropdownStyle={styles.dropdown1DropdownStyle}
-              rowStyle={styles.dropdown1RowStyle}
-              rowTextStyle={styles.dropdown1RowTxtStyle}
-            />
+            data={clinicServiceList.map((service) => service.serviceName)}
+            onSelect={(selectedItem, index) => {
+              setServiceSelected(clinicServiceList[index]);
+            }}
+            defaultButtonText={"Chọn dịch vụ khám bệnh"}
+            buttonTextAfterSelection={(selectedItem, index) => {
+              return selectedItem;
+            }}
+            rowTextForSelection={(item, index) => {
+              return item;
+            }}
+            buttonStyle={styles.dropdown1BtnStyle}
+            buttonTextStyle={styles.dropdown1BtnTxtStyle}
+            renderDropdownIcon={() => (
+              <Image alt="icon" source={chevronDown} size={18} />
+            )}
+            dropdownIconPosition={"right"}
+            dropdownStyle={styles.dropdown1DropdownStyle}
+            rowStyle={styles.dropdown1RowStyle}
+            rowTextStyle={styles.dropdown1RowTxtStyle}
+          />
           <View style={styles.notesContent} />
           <View>
             <Text style={styles.notes}>Ghi chú</Text>
@@ -314,7 +335,7 @@ export default function CreateTask({
               ]}
               onSelect={(selectedItem, index) => {
                 //console.log(selectedItem, index);
-                setStartTime(selectedItem)
+                setStartTime(selectedItem);
               }}
               buttonTextAfterSelection={(selectedItem, index) => {
                 // text represented after item is selected
@@ -381,7 +402,10 @@ export default function CreateTask({
             paddingBottom: 40,
           }}
         >
-          <LoadingSpinner showLoading={isLoading} setShowLoading={setIsLoading} />
+          <LoadingSpinner
+            showLoading={isLoading}
+            setShowLoading={setIsLoading}
+          />
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 100,
@@ -507,8 +531,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#D4D4D5",
   },
-  dropdown1BtnTxtStyle: { color: "black", textAlign: "left", fontSize: 13 },
-  dropdown1DropdownStyle: { backgroundColor: "#EFEFEF", marginTop: -70, borderRadius: 15 },
+  dropdown1BtnTxtStyle: { color: "black", textAlign: "left", fontSize: 15 },
+  dropdown1DropdownStyle: {
+    backgroundColor: "#EFEFEF",
+    marginTop: -70,
+    borderRadius: 15,
+  },
   dropdown1RowStyle: {
     backgroundColor: "#EFEFEF",
     borderBottomColor: "#C5C5C5",

@@ -369,12 +369,12 @@ export default function MedicalRecordDetail({
           <Button
             bg="#fff"
             borderWidth={1}
-            borderColor={appColor.primary}
+            borderColor="secondary.300"
             _text={{
-              color: "primary.300",
+              color: "secondary.300",
             }}
             _pressed={{
-              backgroundColor: "primary.100",
+              backgroundColor: "secondary.100",
             }}
             onPress={() => {
               if (patientInfo) navigation.navigate("MedicalRecord");

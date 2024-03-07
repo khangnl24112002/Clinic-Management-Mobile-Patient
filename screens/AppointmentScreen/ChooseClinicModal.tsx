@@ -10,7 +10,7 @@ import {
   Avatar,
   Modal,
 } from "native-base";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import { appColor } from "../../theme";
 import { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -34,7 +34,11 @@ interface IProps {
 
 // Validate
 
-export default function ClinicServiceModal({ isOpen, onClose, handleNavigate }: IProps) {
+export default function ClinicServiceModal({
+  isOpen,
+  onClose,
+  handleNavigate,
+}: IProps) {
   const toast = useToast();
   const navigation = useNavigation<any>();
   const [searchString, setSearchString] = useState<string>("");
@@ -78,7 +82,7 @@ export default function ClinicServiceModal({ isOpen, onClose, handleNavigate }: 
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <Modal.Content width="90%">
+      <Modal.Content borderRadius={20} width="90%">
         <Modal.CloseButton />
         <Modal.Header>
           <Text fontWeight={"bold"}>Mời chọn phòng khám!</Text>
@@ -203,7 +207,6 @@ export default function ClinicServiceModal({ isOpen, onClose, handleNavigate }: 
             )}
           </VStack>
         </Modal.Body>
-        
       </Modal.Content>
     </Modal>
   );

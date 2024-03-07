@@ -97,11 +97,9 @@ export default function PatientScreen({
                           fontSize={16}
                           maxWidth={"90%"}
                         >
-                          Bác sĩ khám bệnh:{" "}
+                          Nơi khám:{" "}
                           {record
-                            ? record.doctor.firstName +
-                              " " +
-                              record.doctor.lastName
+                            ? record.clinic.name 
                             : null}
                         </Text>
                         <HStack space={2} alignItems="center">

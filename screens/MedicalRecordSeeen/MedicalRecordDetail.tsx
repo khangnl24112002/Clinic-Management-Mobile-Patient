@@ -366,7 +366,7 @@ export default function MedicalRecordDetail({
             bg="grey"
             onPress={() => {
               if (patientInfo)
-                navigation.navigate("MedicalRecord", {patient: patientInfo});
+                navigation.navigate("MedicalRecord");
             }}
           >
             Quay lại

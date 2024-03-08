@@ -1,5 +1,5 @@
 import React from "react";
-import { RegisterScreenProps } from "../../../Navigator/TabNavigator";
+import { RegisterScreenProps } from "../../../Navigator/AuthenticationNavigator";
 import {
   Box,
   Heading,
@@ -56,6 +56,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
   route,
 }) => {
   const toast = useToast();
+
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { setLogin } = route.params;
   const {
@@ -78,21 +79,36 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
   const onSubmit = async (data: IRegisterFormData) => {
     setIsLoading(true);
     const { confirmPassword, ...registerData } = data;
-    console.log(registerData);
     // Send data to server
     await authApi
       .register(registerData)
       .then(async (response) => {
-        if (response.data)
-          // Redirect đến trang Validate
-          reset();
-        navigation.navigate("ValidateNotification", {
-          setLogin,
-          email: data.email,
-        });
+        {
+          if (response.status) {
+            reset();
+            // Redirect đến trang Validate
+            navigation.navigate("ValidateNotification", {
+              setLogin,
+              email: data.email,
+            });
+          } else {
+            toast.show({
+              render: () => {
+                return (
+                  <ToastAlert
+                    title="Thất bại!"
+                    description={response.message}
+                    status="error"
+                  />
+                );
+              },
+            });
+          }
+        }
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // Print error to the screen
+        console.log(error);
         toast.show({
           render: () => {
             return (

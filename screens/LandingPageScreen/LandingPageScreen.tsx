@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import { ClinicSelector, setPatient, userInfoSelector } from "../../store";
 import Carousel from "react-native-reanimated-carousel";
 import ToastAlert from "../../components/Toast/Toast";
+import { FCMConfig } from "../../config/firebaseCloudMessage";
 
 export default function LandingPageScreen({
   navigation,
@@ -47,11 +48,14 @@ export default function LandingPageScreen({
   };
   useEffect(() => {
     getPatientInfo();
+    if (userInfo?.id) {
+      FCMConfig(userInfo.id);
+    }
   }, [clinic?.id]);
 
   const { setLogin } = route.params;
   const handlePressPatientRecord = () => {
-    if (userInfo && patientInfo) {
+    if (userInfo) {
       navigation.navigate("MedicalRecordNavigator");
     } else {
       toast.show({

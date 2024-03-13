@@ -34,9 +34,20 @@ export default function PatientScreen({
         const response = await medicalRecordApi.getMedicalRecords({
           puid: userInfo?.id,
         });
-        console.log("response: ", response);
         if (response.status && response.data) {
-          setMedicalRecordList(response.data);
+          let renderRecords: IMedicalRecord[] = [];
+          const responselist = response.data;
+          if (responselist.length) {
+            responselist.map((medicalRec: IMedicalRecord, index: number) => {
+              if (
+                medicalRec.paymentStatus === 1 &&
+                medicalRec.examinationStatus === 3
+              ) {
+                renderRecords.push(medicalRec);
+              }
+            });
+          }
+          setMedicalRecordList(renderRecords);
         } else {
         }
       }
@@ -97,10 +108,7 @@ export default function PatientScreen({
                           fontSize={16}
                           maxWidth={"90%"}
                         >
-                          Nơi khám:{" "}
-                          {record
-                            ? record.clinic.name 
-                            : null}
+                          Nơi khám: {record ? record.clinic.name : null}
                         </Text>
                         <HStack space={2} alignItems="center">
                           <>

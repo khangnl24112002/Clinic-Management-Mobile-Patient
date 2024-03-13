@@ -61,9 +61,9 @@ const ProfileScreen = ({ navigation, route }: UserProfileScreenProps) => {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    FCMConfig(userInfo?.id);
-  }, []);
+  // useEffect(() => {
+  //   FCMConfig(userInfo?.id);
+  // }, []);
   return (
     <Box
       bgColor="#fff"
